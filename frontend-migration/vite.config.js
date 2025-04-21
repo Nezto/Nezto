@@ -9,6 +9,7 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    allowedHosts : ["local.sprucbot.tech"],
     fs: {
       // Allow serving files from one level up from the project root
       allow: ['..']
