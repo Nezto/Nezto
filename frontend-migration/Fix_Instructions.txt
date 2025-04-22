@@ -1,1 +1,0 @@
-In src\ServicesPages.jsx, change: {service.category === 'quick' ? 'Express' : service.category === 'premium' ? 'Premium' : service.category === 'home' ? 'Home Care' : 'Daily Wear'} TO: {service.category === 'daily' ? 'Daily Wear' : service.category === 'premium' ? 'Premium' : service.category === 'home' ? 'Home Care' : service.category === 'quick' ? 'Quick Service' : 'General'}
