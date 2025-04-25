@@ -1,6 +1,9 @@
 import { Order } from "../models/Order.js";
 import { ApiResponse } from "../utils/helpers.js";
 import mongoose from "mongoose";
+import {
+    calculateDistance
+} from "../utils/approxDistanceCount.js"
 
 /**
  * @description Create a new order
@@ -182,11 +185,29 @@ async function getOrderById(req, res) {
             );
         }
 
+        // Calculate distance if pickup and drop locations exist
+        let distance = null;
+        if (order.pickup_location && order.drop_location) {
+            try {
+                distance = calculateDistance(
+                    order.pickup_location,
+                    order.drop_location
+                );
+                // Round to 2 decimal places for cleaner display
+                distance = Math.round(distance * 100) / 100;
+            } catch (error) {
+                console.error("Error calculating distance:", error);
+                // Distance will remain null if calculation fails
+            }
+        }
+
         // Security and privacy modifications
         const sanitizedOrder = {
             ...order,
             // Remove sensitive fields
             otp: undefined,
+            // Add calculated distance
+            distance_km: distance,
             // Flatten populated user objects if needed
             user: order.user ? {
                 id: order.user._id,
@@ -211,9 +232,6 @@ async function getOrderById(req, res) {
             } : null
         };
 
-        // Add additional calculated fields if needed
-        sanitizedOrder.time_remaining = calculateTimeRemaining(order.drop_time);
-
         return res.status(200).json(
             new ApiResponse(200, sanitizedOrder, "Order fetched successfully")
         );
@@ -223,21 +241,6 @@ async function getOrderById(req, res) {
             new ApiResponse(500, null, "Internal server error")
         );
     }
-}
-
-// Helper function (could be moved to utilities)
-function calculateTimeRemaining(dropTime) {
-    if (!dropTime) return null;
-    const now = new Date();
-    const drop = new Date(dropTime);
-    const diffMs = drop - now;
-    
-    if (diffMs <= 0) return "Completed";
-    
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
-    return `${diffDays}d ${diffHours}h remaining`;
 }
 
 /**
