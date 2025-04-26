@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/helpers.js";
 import mongoose from "mongoose";
 import {
     calculateDistance
-} from "../utils/approxDistanceCount.js"
+} from "../utils/approxDistanceCount.js";
 
 /**
  * @description Create a new order
