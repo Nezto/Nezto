@@ -1,0 +1,43 @@
+/* Styles for active order bar spacing */
+.has-active-order {
+  padding-bottom: 5rem !important; /* Add padding to bottom of main content when there's an active order */
+}
+
+@media (min-width: 768px) {
+  .has-active-order {
+    padding-bottom: 6rem !important;
+  }
+}
+
+/* Ensure the order bar doesn't overlap with mobile navigation */
+.order-bar-container {
+  position: fixed;
+  bottom: 4.5rem; /* Space for mobile navigation */
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding: 0 1rem;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .order-bar-container {
+    bottom: 0; /* No mobile navigation on desktop */
+    max-width: 90%;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .order-bar-container {
+    max-width: 80%;
+  }
+}
+
+/* Ensure the expanded order bar doesn't go off-screen */
+.order-bar-container .expanded {
+  max-height: 80vh;
+  overflow-y: auto;
+}
