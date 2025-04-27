@@ -1,33 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
 import NavBar from '../component/block/NavBar';
 import Footer from '../component/block/Footer';
-import { motion } from 'framer-motion';
-import {
-  Shirt,
-  Hammer,
-  WashingMachine,
-  Sparkles,
-  Clock,
-  Star,
-  ChevronRight,
-  MapPin,
-  ChevronDown,
-  Search,
-  ThumbsUp,
-  Percent,
-  Award,
-  TrendingUp,
-  Gift,
-  Shield,
-  Phone,
-  Truck,
-  Calendar,
-  BadgeCheck,
-  Mail,
-  MessageSquare
-} from 'lucide-react';
+import {ImageLogo} from "../utils/placeholders/images"
+import { LazyImage } from '../component/ui/image';
+import { PlayIcon } from 'lucide-react';
+
+import { Shirt, Hammer, WashingMachine, Sparkles, Clock, Star, ChevronRight, MapPin, ChevronDown, Search, Percent, Award, Shield, Phone, Truck, Calendar, BadgeCheck,   Mail, MessageSquare} from 'lucide-react';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -403,14 +383,10 @@ const HomePage = () => {
                                     >
                                         <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-5 sm:mb-6 shadow-inner">
                                             {typeof service.icon === 'string' ? (
-                                                <img
+                                                <LazyImage
                                                     src={service.icon}
                                                     alt={service.name}
                                                     className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2' ry='2'/%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Cpath d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/%3E%3C/svg%3E";
-                                                    }}
                                                 />
                                             ) : (
                                                 service.icon
@@ -473,14 +449,12 @@ const HomePage = () => {
                                             className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col items-center cursor-pointer"
                                         >
                                             <div className="w-16 h-16 flex items-center justify-center bg-primary/10 rounded-full mb-4">
-                                                <img
+                                                <LazyImage
                                                     src={service.icon}
                                                     alt={service.name}
                                                     className="w-10 h-10 object-contain"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2' ry='2'/%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Cpath d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/%3E%3C/svg%3E";
-                                                    }}
+                                                    placeholder = {ImageLogo}
+                                                    
                                                 />
                                             </div>
                                             <h3 className="text-base md:text-lg font-semibold text-gray-900 text-center">{service.name}</h3>
@@ -521,15 +495,9 @@ const HomePage = () => {
                                 className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden flex flex-col cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                             >
                                 <div className="h-48 bg-gray-100 relative">
-                                    <img
-                                        src={service.image}
+                                    <LazyImage src={service.image}
                                         alt={service.name}
                                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                                        loading="lazy"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2' ry='2'/%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Cpath d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/%3E%3C/svg%3E";
-                                        }}
                                     />
                                     <div className="absolute top-3 right-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-lg shadow-md">
                                         {service.time}
@@ -560,15 +528,11 @@ const HomePage = () => {
                                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                             >
                                 <div className="h-40 bg-gray-100 relative">
-                                    <img
+                                    <LazyImage
                                         src={bundle.image}
                                         alt={bundle.name}
                                         className="w-full h-full object-cover"
                                         loading="lazy"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2' ry='2'/%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Cpath d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/%3E%3C/svg%3E";
-                                        }}
                                     />
                                     <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
                                         Save {bundle.savings}
@@ -642,15 +606,10 @@ const HomePage = () => {
                                     <div key={index} className="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 transform hover:-translate-y-1">
                                         <div className="flex items-center mb-6">
                                             <div className="mr-4">
-                                                <img
+                                                <LazyImage
                                                     src={testimonial.avatar}
                                                     alt={testimonial.name}
                                                     className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-primary"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        const initials = testimonial.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                                                        e.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%236366F1' rx='50' ry='50'/%3E%3Ctext x='50' y='50' font-size='40' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='system-ui'%3E${initials}%3C/text%3E%3C/svg%3E`;
-                                                    }}
                                                 />
                                             </div>
                                             <div>
@@ -689,9 +648,7 @@ const HomePage = () => {
                                 <p className="text-white/90 text-lg mb-6">Get exclusive offers and track your orders in real-time</p>
                                 <div className="flex flex-col xs:flex-row space-y-3 xs:space-y-0 xs:space-x-3">
                                     <button className="bg-black text-white py-3 px-5 rounded-lg flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM8.83333 13.5V6.5L13.5 10L8.83333 13.5Z" />
-                                        </svg>
+                                        <PlayIcon className='text-orange-400 mx-2'/>
                                         <span className="text-base md:text-lg">Google Play</span>
                                     </button>
                                     <button className="bg-black text-white py-3 px-5 rounded-lg flex items-center justify-center">
