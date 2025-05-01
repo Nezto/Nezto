@@ -7,11 +7,12 @@
 - [x] Delete laundry by id
 
 ## Order Handler
-- [ ] Create a new order
-- [ ] Get all orders
-- [ ] Get order by id
-- [ ] Update order by id
-- [ ] Delete order by id
+- [x] Create a new order
+- [x] Get all orders
+- [x] Get order by id
+- [ ] Update order by id (location, notes etc)
+- [ ] Cancel order by id
+
 
 ## User Handler
 - [x] Create a new user
@@ -19,3 +20,10 @@
 - [x] Get user by id
 - [x] Update user by id
 - [x] Delete user by id
+
+
+## Payment Handler
+- [x] Order Payment Callback 
+- [x] Create order payment 
+- [x] Payouts to rider, laundry
+- [x] Payment verification middleware
