@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import {
     calculateDistance
 } from "../utils/approxDistanceCount.js";
+import { io } from "../socket/socket.js";
+import { User } from "../models/User.js";
+import crypto from "crypto";
 
 /**
  * @description Create a new order
@@ -12,68 +15,350 @@ import {
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<import('express').Response>} Response with created order
  */
+const generateOTP = () => crypto.randomInt(100000, 999999).toString();
+
+/**
+ * @description Create new order (without OTP initially)
+ */
 async function createOrder(req, res) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
     try {
-        const { price, type, user, vendor, pick_time, drop_time, otp } = req.body;
+        const { price, type, user, vendor, pick_time, drop_time } = req.body;
         
         // Validate required fields
-        if (price == null || !type || !user || !vendor || !pick_time || !drop_time || !otp) {
+        if (!price || !type || !user || !vendor || !pick_time || !drop_time) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
-        // Validate ObjectId fields
-        if (!mongoose.Types.ObjectId.isValid(user)) {
-            return res.status(400).json({ success: false, message: "Invalid user ID" });
-        }
-        if (!mongoose.Types.ObjectId.isValid(vendor)) {
-            return res.status(400).json({ success: false, message: "Invalid vendor ID" });
+        // Verify user exists
+        const userDoc = await User.findById(user).session(session);
+        if (!userDoc) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Validate type against enum values
-        const validTypes = ["wash", "dry_clean", "iron"];
-        if (!validTypes.includes(type)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Invalid order type. Must be one of: wash, dry_clean, iron" 
-            });
+        // Verify vendor exists and has vendor role
+        const vendorDoc = await User.findById(vendor).session(session);
+        if (!vendorDoc || !vendorDoc.role.includes('vendor')) {
+            return res.status(404).json({ success: false, message: "Vendor not found or invalid" });
         }
 
-        // Validate dates
-        const pickTime = new Date(pick_time);
-        const dropTime = new Date(drop_time);
-        if (isNaN(pickTime.getTime()) || isNaN(dropTime.getTime())) {
-            return res.status(400).json({ success: false, message: "Invalid date format" });
-        }
-
-        // Validate price is a number
-        if (typeof price !== 'number' || price <= 0) {
-            return res.status(400).json({ success: false, message: "Price must be a positive number" });
-        }
-
-        // Validate OTP is a string (as per your model comment)
-        if (typeof otp !== 'string') {
-            return res.status(400).json({ success: false, message: "OTP must be a string" });
-        }
-
-        const order = await Order.create({ 
-            price, 
-            type, 
-            user, 
-            vendor, 
-            pick_time: pickTime, 
-            drop_time: dropTime, 
-            otp, 
-            status: "pending" 
+        // Create order
+        const order = new Order({
+            price,
+            type,
+            user,
+            vendor,
+            pick_time: new Date(pick_time),
+            drop_time: new Date(drop_time),
+            status: "pending"
         });
 
-        return res.status(201).json(new ApiResponse(201, order, "Order created successfully"));
+        await order.save({ session });
+
+        // Notify vendor via socket
+        io.to(`vendor_${vendor}`).emit('new_order', {
+            orderId: order._id,
+            user: {
+                id: userDoc._id,
+                name: userDoc.name,
+                location: userDoc.location
+            },
+            details: {
+                type,
+                pick_time,
+                drop_time,
+                price
+            }
+        });
+
+        await session.commitTransaction();
+        
+        return res.status(201).json(
+            new ApiResponse(201, order, "Order created successfully. Waiting for vendor acceptance.")
+        );
+
     } catch (error) {
+        await session.abortTransaction();
         console.error("Error creating order:", error);
-        return res.status(500).json({ 
-            success: false, 
-            message: "Internal server error",
-            error: error.message 
+        return res.status(500).json(
+            new ApiResponse(500, null, "Internal server error", false, error.message)
+        );
+    } finally {
+        session.endSession();
+    }
+}
+
+/**
+ * @description Vendor accepts order and generates user OTP
+ */
+async function vendorAcceptOrder(req, res) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+        const { id } = req.params;
+        const { vendorId } = req.body;
+
+        // Find and validate order
+        const order = await Order.findById(id).session(session);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.vendor.toString() !== vendorId) {
+            return res.status(403).json({ success: false, message: "Not authorized" });
+        }
+
+        if (order.status !== "pending") {
+            return res.status(400).json({ success: false, message: "Invalid order state" });
+        }
+
+        // Generate user OTP
+        const userOTP = generateOTP();
+        order.user_otp = userOTP;
+        order.status = "accepted";
+        await order.save({ session });
+
+        // Find user location for rider matching
+        const user = await User.findById(order.user).session(session);
+        if (!user || !user.location) {
+            return res.status(404).json({ success: false, message: "User location not found" });
+        }
+
+        // Find nearby riders (15km radius)
+        const riders = await User.find({ 
+            role: 'rider',
+            location: { $exists: true }
+        }).session(session);
+
+        const nearbyRiders = riders.filter(rider => {
+            try {
+                const distance = calculateDistance(user.location, rider.location);
+                return distance <= 15;
+            } catch (e) {
+                console.error(`Distance error for rider ${rider._id}:`, e);
+                return false;
+            }
         });
+
+        // Notify nearby riders
+        nearbyRiders.forEach(rider => {
+            io.to(`rider_${rider._id}`).emit('order_available', {
+                orderId: order._id,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    location: user.location
+                },
+                vendor: {
+                    id: vendorId,
+                    name: vendorDoc.name,
+                    location: vendorDoc.location
+                },
+                details: {
+                    type: order.type,
+                    pick_time: order.pick_time,
+                    drop_time: order.drop_time,
+                    price: order.price
+                }
+            });
+        });
+
+        await session.commitTransaction();
+        
+        return res.status(200).json(
+            new ApiResponse(200, order, "Order accepted by vendor. User OTP generated. Searching for riders.")
+        );
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error("Error in vendor acceptance:", error);
+        return res.status(500).json(
+            new ApiResponse(500, null, "Internal server error", false, error.message)
+        );
+    } finally {
+        session.endSession();
+    }
+}
+
+/**
+ * @description Rider accepts order
+ */
+async function riderAcceptOrder(req, res) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+        const { id } = req.params;
+        const { riderId } = req.body;
+
+        // Find and validate order
+        const order = await Order.findById(id).session(session);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status !== "accepted") {
+            return res.status(400).json({ success: false, message: "Invalid order state" });
+        }
+
+        // Verify rider exists
+        const rider = await User.findById(riderId).session(session);
+        if (!rider || !rider.role.includes('rider')) {
+            return res.status(404).json({ success: false, message: "Rider not found" });
+        }
+
+        // Assign rider and update status
+        order.rider = riderId;
+        order.status = "rider_assigned";
+        await order.save({ session });
+
+        // Notify user with OTP
+        io.to(`user_${order.user}`).emit('rider_assigned', {
+            orderId: order._id,
+            rider: {
+                id: rider._id,
+                name: rider.name,
+                picture: rider.picture
+            },
+            user_otp: order.user_otp,
+            pick_time: order.pick_time
+        });
+
+        await session.commitTransaction();
+        
+        return res.status(200).json(
+            new ApiResponse(200, order, "Rider assigned. User notified with OTP.")
+        );
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error("Error in rider acceptance:", error);
+        return res.status(500).json(
+            new ApiResponse(500, null, "Internal server error", false, error.message)
+        );
+    } finally {
+        session.endSession();
+    }
+}
+
+/**
+ * @description Verify user OTP (when rider collects laundry)
+ */
+async function verifyUserOTP(req, res) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+        const { id } = req.params;
+        const { otp } = req.body;
+
+        // Find and validate order
+        const order = await Order.findById(id).session(session);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status !== "rider_assigned") {
+            return res.status(400).json({ success: false, message: "Invalid order state" });
+        }
+
+        // Verify OTP matches
+        if (order.user_otp !== otp) {
+            return res.status(400).json({ success: false, message: "Invalid OTP" });
+        }
+
+        // Generate vendor OTP
+        const vendorOTP = generateOTP();
+        order.vendor_otp = vendorOTP;
+        order.status = "user_verified";
+        await order.save({ session });
+
+        // Notify vendor with OTP
+        io.to(`vendor_${order.vendor}`).emit('ready_for_delivery', {
+            orderId: order._id,
+            vendor_otp: vendorOTP,
+            rider: {
+                id: order.rider,
+                name: (await User.findById(order.rider)).name
+            },
+            drop_time: order.drop_time
+        });
+
+        await session.commitTransaction();
+        
+        return res.status(200).json(
+            new ApiResponse(200, order, "User OTP verified. Vendor OTP generated.")
+        );
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error("Error in user OTP verification:", error);
+        return res.status(500).json(
+            new ApiResponse(500, null, "Internal server error", false, error.message)
+        );
+    } finally {
+        session.endSession();
+    }
+}
+
+/**
+ * @description Verify vendor OTP (when rider delivers laundry)
+ */
+async function verifyVendorOTP(req, res) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+        const { id } = req.params;
+        const { otp } = req.body;
+
+        // Find and validate order
+        const order = await Order.findById(id).session(session);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status !== "user_verified") {
+            return res.status(400).json({ success: false, message: "Invalid order state" });
+        }
+
+        // Verify OTP matches
+        if (order.vendor_otp !== otp) {
+            return res.status(400).json({ success: false, message: "Invalid OTP" });
+        }
+
+        // Complete the order
+        order.status = "completed";
+        order.completed_at = new Date();
+        await order.save({ session });
+
+        // Notify all parties
+        const emitData = {
+            orderId: order._id,
+            completed_at: order.completed_at
+        };
+        
+        io.to(`user_${order.user}`).emit('order_completed', emitData);
+        io.to(`vendor_${order.vendor}`).emit('order_completed', emitData);
+        io.to(`rider_${order.rider}`).emit('order_completed', emitData);
+
+        await session.commitTransaction();
+        
+        return res.status(200).json(
+            new ApiResponse(200, order, "Vendor OTP verified. Order completed successfully.")
+        );
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error("Error in vendor OTP verification:", error);
+        return res.status(500).json(
+            new ApiResponse(500, null, "Internal server error", false, error.message)
+        );
+    } finally {
+        session.endSession();
     }
 }
 
@@ -302,7 +587,11 @@ async function deleteOrderById(req, res) {
 }
 
 export {
-    createOrder,
+    createOrder, 
+    vendorAcceptOrder, 
+    riderAcceptOrder,
+    verifyUserOTP,
+    verifyVendorOTP,
     getAllOrders,
     getOrderById,
     updateOrderById,
