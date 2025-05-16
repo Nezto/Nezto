@@ -80,7 +80,7 @@ export const getServiceById = async (req, res) => {
  */
 export const createService = async (req, res) => {
   try {
-    const { serviceId, name, description, price, category, popular, turnaround, iconName } = req.body;
+    const { serviceId, name, description, price, category, popular, turnaround, icon } = req.body;
     
     // Check if service with same ID already exists
     const serviceExists = await Service.findOne({ serviceId });
@@ -99,7 +99,7 @@ export const createService = async (req, res) => {
       category,
       popular: popular || false,
       turnaround,
-      iconName: iconName || null,
+      icon: icon || null,
     });
     
     return res.status(201).json({
