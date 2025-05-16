@@ -1,6 +1,6 @@
 import {PORT} from "./src/config.js"
 import connectDB from './src/db/db.js'
-import { app } from "./src/app.js"
+// import { app } from "./src/app.js"
 import { server } from "./src/socket/socket.js";
 
 

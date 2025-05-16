@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { google_auth_url, jwtConfig } from "../config.js";
+import { google_auth_url, jwtConfig, CLIENT_ENDPOINT } from "../config.js";
 import { User } from "../models/User.js";
 import { jwtUser } from "../utils/wrappers.js";
 import { fetch_google_user } from "../utils/helpers.js";
@@ -29,9 +29,7 @@ export async function googleAuth(req, res) {
         if (!_user) {
             res.status(401).json({ message: 'Invalid authentication' });
             return;
-        }
-        
-        // if user already exists in database
+        }          // if user already exists in database
         const _userExists = await User.findOne({ email: _user.email });
         if (_userExists) {
             _userExists.picture = _user.picture;
@@ -39,25 +37,23 @@ export async function googleAuth(req, res) {
             _userExists.token = jwt.sign(jwtUser(_userExists), jwtConfig.secret);
             await _userExists.save();
             res.setHeader('token', _userExists.token);
-            res.cookie('token', _userExists.token, { httpOnly: true, secure: true, sameSite: 'none' });
-            res.status(200).json(_userExists);
+            res.cookie('token', _userExists.token, { expires: new Date(Date.now() + 3150000), httpOnly: true, secure: true, sameSite: 'none' });
+            return res.redirect(CLIENT_ENDPOINT);
         }
-
 
         // if user does not exist in database
         const newUser = new User({ email: _user.email, picture: _user.picture, name: _user.name, role: "user" })
         const token = jwt.sign(jwtUser({...newUser.toObject()}), jwtConfig.secret);
-        console.log(jwt.verify(token, jwtConfig.secret));
+
         newUser.token = token;
         await newUser.save();
-        res.setHeader('token', newUser.token);
-        res.cookie('token', newUser.token, { httpOnly: true, secure: true, sameSite: 'none' });
-        res.status(201).json(newUser);
-        return;
+        res.cookie('token', newUser.token, { expires: new Date(Date.now() + 3150000), httpOnly: true, secure: true, sameSite: 'none' });
+        res.redirect(CLIENT_ENDPOINT);
 
     } catch (error) {
-        res.status(500).json({ code: 500, message: "server error", error: error.message || "" })
-        return;
+        return res.json(
+            { code: 500, message: "server error", error: error.message || "" }
+        );
     }
 }
 
@@ -72,6 +68,7 @@ export async function LogIn(req, res) {
 
 
 export async function authenticate(req, res) {
+    console.log(req.cookies);
     try {
         if (req.cookies.token == null) {
             if (!req.headers.authorization || !`${req.headers.authorization}`.startsWith('Bearer ')) {

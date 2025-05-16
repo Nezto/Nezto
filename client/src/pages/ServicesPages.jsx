@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavBar, Footer } from "../component/init";
 import ServiceCard from '../component/ui/cards/ServiceCard';
 import { 
@@ -349,7 +349,7 @@ const ServicesPage = () => {
             <NavBar />
 
             {/* Main Content */}
-            <main className="flex-1 max-w-screen-lg mx-auto w-full px-4 py-20">
+            <main className="flex-1 max-w-screen-lg mx-auto w-full px-4 pb-20">
                 {/* Page Title */}
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">Our Services</h1>

@@ -285,7 +285,7 @@ const HomePage = () => {
             <NavBar />
 
             {/* Main Content */}
-            <main className="flex-1 pt-16 pb-24 w-full">
+            <main className="flex-1 pb-24 w-full">
                 {/* Location & Search Bar */}
                 <div className="bg-white py-4 mb-4 shadow-sm">
                     <div className="max-w-screen-lg mx-auto px-4">

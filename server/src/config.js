@@ -5,6 +5,7 @@ configDotenv({path : ".env"});
 export const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017"
 export const PORT = process.env.PORT || 8000; //prefer 8000 for now
 export const origin = "http://localhost:"+ PORT;
+export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "http://localhost:3000";
 
 export const jwtConfig = {
     secret: process.env.JWT_SECRET,
