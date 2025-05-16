@@ -199,7 +199,7 @@ const ProfilePage = () => {
 
       {/* Modern Header with gradient background */}
       <div 
-        className="bg-gradient-to-r from-primary to-primary/80 p-6 text-white mt-12"
+        className="bg-gradient-to-r from-primary to-primary/80 mt-2 p-6 text-white rounded-t-xl md:rounded-t-none"
         style={{ willChange: 'transform' }}
       >
         <div className="flex items-center justify-between">

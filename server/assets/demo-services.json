@@ -1,0 +1,50 @@
+[
+    {
+
+        "name": "Regular Dry Cleaning",
+        "description": "Professional dry cleaning for regular clothes",
+        "price": "₹69",
+        "category": "daily",
+        "popular": true,
+        "turnaround": "24-48 hours",
+        "icon": "shirt"
+    },
+    {
+
+        "name": "Wash & Fold",
+        "description": "Washing, drying and folding service",
+        "price": "₹99/kg",
+        "category": "daily",
+        "popular": true,
+        "turnaround": "24 hours",
+        "icon": "washing-machine"
+    },
+    {
+
+        "name": "Ironing Service",
+        "description": "Professional pressing for wrinkle-free clothes",
+        "price": "₹25/piece",
+        "category": "daily",
+        "popular": true,
+        "turnaround": "Same day",
+        "icon": "hammer"
+    },
+    {
+        "name": "Wash & Iron",
+        "description": "Complete laundry with washing and ironing",
+        "price": "₹129/kg",
+        "category": "daily",
+        "popular": false,
+        "turnaround": "24-48 hours",
+        "icon": "washing-machine"
+    },
+    {
+        "name": "Leather & Suede",
+        "description": "Specialized cleaning for leather and suede items",
+        "price": "₹599/piece",
+        "category": "premium",
+        "popular": true,
+        "turnaround": "3-5 days",
+        "icon": "shield-check"
+    }
+]
