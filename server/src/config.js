@@ -10,7 +10,6 @@ export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 export const origin = `localhost:${PORT}`;
 
 export const client = {
-    PORT: process.env.CLIENT_PORT || 3000,
     HOST: process.env.CLIENT_HOST || "localhost",
     ENDPOINT: process.env.CLIENT_ENDPOINT || "http://localhost:3000",
     ORIGIN: process.env.CLIENT_ORIGIN || "localhost:3000",

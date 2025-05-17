@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config.js';
 import { Mail, Lock, Eye, EyeOff, Phone, ArrowRight, Facebook, ChevronLeft } from 'lucide-react';
 
 const AuthPage = ({ onLogin }) => {
@@ -84,16 +85,8 @@ const AuthPage = ({ onLogin }) => {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    try {
-      // Simulate Google auth
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      onLogin();
-      navigate('/');
-    } catch (error) {
-      console.error('Google sign in error:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    onLogin()
+    window.open(`${API_URL}/auth/login`, '_self');
   };
 
   const handleFacebookSignIn = async () => {
