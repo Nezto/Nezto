@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { google_auth_url, jwtConfig, client } from "../config.js";
 import { User } from "../models/User.js";
 import { jwtUser } from "../utils/wrappers.js";
-import { fetch_google_user } from "../utils/helpers.js";
+import { fetch_google_user, set_cookie } from "../utils/helpers.js";
 
 
 /**
@@ -30,7 +30,9 @@ export async function googleAuth(req, res) {
         if (!_user) {
             res.status(401).json({ message: 'Invalid authentication' });
             return;
-        }          // if user already exists in database
+        }
+
+        // if user already exists in database
         const _userExists = await User.findOne({ email: _user.email });
         if (_userExists) {
             _userExists.picture = _user.picture;
@@ -38,25 +40,17 @@ export async function googleAuth(req, res) {
             _userExists.token = jwt.sign(jwtUser(_userExists), jwtConfig.secret);
             await _userExists.save();
             res.setHeader('token', _userExists.token);
-            res.cookie('token', _userExists.token, 
-                { 
-                    expires: new Date(Date.now() + 3150000), 
-                    httpOnly: true, 
-                    secure: true, 
-                    domain: client.ORIGIN,
-                    sameSite: 'none' 
-                }
-            );
+            set_cookie(req, res, 'token', _userExists.token);
             return res.redirect(client.ENDPOINT);
         }
 
         // if user does not exist in database
         const newUser = new User({ email: _user.email, picture: _user.picture, name: _user.name, role: "user" })
-        const token = jwt.sign(jwtUser({...newUser.toObject()}), jwtConfig.secret);
+        const token = jwt.sign(jwtUser({ ...newUser.toObject() }), jwtConfig.secret);
 
         newUser.token = token;
         await newUser.save();
-        res.cookie('token', newUser.token, { expires: new Date(Date.now() + 3150000), httpOnly: true, secure: true, sameSite: 'none' });
+        set_cookie(req, res, 'token', newUser.token);
         res.redirect(client.ENDPOINT);
 
     } catch (error) {

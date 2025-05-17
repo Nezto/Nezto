@@ -8,13 +8,12 @@ export const PORT = process.env.PORT || 8000;
 export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 export const origin = `localhost:${PORT}`;
-export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "http://localhost:3000";
 
 export const client = {
-    PORT : process.env.CLIENT_PORT || 3000,
-    HOST : process.env.CLIENT_HOST || "localhost",
-    ENDPOINT : process.env.CLIENT_ENDPOINT || "http://localhost:3000",
-    ORIGIN : process.env.CLIENT_ORIGIN || "localhost:3000",
+    PORT: process.env.CLIENT_PORT || 3000,
+    HOST: process.env.CLIENT_HOST || "localhost",
+    ENDPOINT: process.env.CLIENT_ENDPOINT || "http://localhost:3000",
+    ORIGIN: process.env.CLIENT_ORIGIN || "localhost:3000",
 }
 
 
@@ -40,7 +39,6 @@ export const google = {
 /**
  * 
  * @param {import('express').Request} req 
-
  */
 export function base_url(req){
     let _base_url = config_cache.get("base_url")

@@ -1,4 +1,4 @@
-import { google, jwtConfig, base_url } from "../config.js";
+import { google, jwtConfig, base_url, client } from "../config.js";
 import jwt from "jsonwebtoken";
 
 /**
@@ -101,4 +101,22 @@ export class ApiResponse {
     }
     this.success = statusCode < 400;
   }
+}
+
+
+/**
+ * @description Set cookie in response
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} key - Cookie key
+ * @param {string} value - Cookie value
+ */
+export function set_cookie(req, res, key, value, domain=client.HOST, time=3150000, secure=true) {
+    res.cookie(key, value, { 
+        expires: new Date(Date.now() + time), 
+        httpOnly: true, 
+        secure: secure, 
+        domain: domain || req.hostname,
+        sameSite: 'none' 
+    });
 }
