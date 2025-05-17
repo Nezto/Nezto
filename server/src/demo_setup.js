@@ -1,4 +1,4 @@
-import {readFile, readFileSync} from 'fs';
+import { readFileSync } from 'fs';
 import { Service } from './models/Service.js';
 
 const _demoServices = JSON.parse(
@@ -6,24 +6,24 @@ const _demoServices = JSON.parse(
 );
 // console.log(_demoServices);
 export async function setupDemoServices() {
-// check if services already exist
+    // check if services already exist
     const services = await Service.find();
     if (services.length > 0) {
         console.log("Demo services already exist");
         return;
     }
-_demoServices.forEach(async (service) => {
-    const newService = new Service({
-        serviceId: Date.now() + Math.floor(Math.random() * 1000),
-        name: service.name,
-        description: service.description,
-        price: service.price,
-        category: service.category,
-        image: service.image,
-        rating: service.rating,
-        reviews: service.reviews
+    _demoServices.forEach(async (service) => {
+        const newService = new Service({
+            serviceId: Date.now() + Math.floor(Math.random() * 1000),
+            name: service.name,
+            description: service.description,
+            price: service.price,
+            category: service.category,
+            image: service.image,
+            rating: service.rating,
+            reviews: service.reviews
+        });
+        await newService.save();
     });
-    await newService.save();
-});
-console.log("Demo services created");
+    console.log("Demo services created");
 }

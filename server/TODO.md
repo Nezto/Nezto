@@ -23,7 +23,7 @@
 
 
 ## Payment Handler
-- [x] Order Payment Callback 
-- [x] Create order payment 
-- [x] Payouts to rider, laundry
-- [x] Payment verification middleware
+- [ ] Order Payment Callback 
+- [ ] Create order payment 
+- [ ] Payouts to rider, laundry
+- [ ] Payment verification middleware

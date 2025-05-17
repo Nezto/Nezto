@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { google_auth_url, jwtConfig, CLIENT_ENDPOINT } from "../config.js";
+import { google_auth_url, jwtConfig, client } from "../config.js";
 import { User } from "../models/User.js";
 import { jwtUser } from "../utils/wrappers.js";
 import { fetch_google_user } from "../utils/helpers.js";
@@ -16,7 +16,8 @@ import { fetch_google_user } from "../utils/helpers.js";
  */
 export async function googleAuth(req, res) {
     try {
-
+        res.setHeader('Access-Control-Allow-Origin', CLIENT_ENDPOINT); // Replace with your client's domain
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
         const { code } = req.query;
         // if unable to find code in query
         if (!code) {
@@ -37,8 +38,16 @@ export async function googleAuth(req, res) {
             _userExists.token = jwt.sign(jwtUser(_userExists), jwtConfig.secret);
             await _userExists.save();
             res.setHeader('token', _userExists.token);
-            res.cookie('token', _userExists.token, { expires: new Date(Date.now() + 3150000), httpOnly: true, secure: true, sameSite: 'none' });
-            return res.redirect(CLIENT_ENDPOINT);
+            res.cookie('token', _userExists.token, 
+                { 
+                    expires: new Date(Date.now() + 3150000), 
+                    httpOnly: true, 
+                    secure: true, 
+                    domain: client.ORIGIN,
+                    sameSite: 'none' 
+                }
+            );
+            return res.redirect(client.ENDPOINT);
         }
 
         // if user does not exist in database
@@ -48,7 +57,7 @@ export async function googleAuth(req, res) {
         newUser.token = token;
         await newUser.save();
         res.cookie('token', newUser.token, { expires: new Date(Date.now() + 3150000), httpOnly: true, secure: true, sameSite: 'none' });
-        res.redirect(CLIENT_ENDPOINT);
+        res.redirect(client.ENDPOINT);
 
     } catch (error) {
         return res.json(
@@ -68,7 +77,6 @@ export async function LogIn(req, res) {
 
 
 export async function authenticate(req, res) {
-    console.log(req.cookies);
     try {
         if (req.cookies.token == null) {
             if (!req.headers.authorization || !`${req.headers.authorization}`.startsWith('Bearer ')) {
