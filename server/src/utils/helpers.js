@@ -1,4 +1,4 @@
-import { google, jwtConfig } from "../config.js";
+import { google, jwtConfig, base_url } from "../config.js";
 import jwt from "jsonwebtoken";
 
 /**
@@ -14,10 +14,9 @@ export async function fetch_google_user(req) {
             code: req.query.code,
             client_id: google.client_id,
             client_secret: google.client_secret,
-            redirect_uri: `${req.protocol}://${req.get('host')}${google.redirect_uris[0]}`,
+            redirect_uri: `${base_url(req)}/auth/google`,
             grant_type: 'authorization_code'
         }
-
         // fetching access token
         let _response = await fetch(google.token_url, {
             method: "POST",

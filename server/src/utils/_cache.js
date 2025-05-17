@@ -33,4 +33,6 @@ class _LaundryOwnerCache extends Map {
 // console.log(cache.get("ObjectID86457")); // Example usage: getting the owner ID for a laundry ID
 
 const LaundryOwnerCache = new _LaundryOwnerCache();
-export { LaundryOwnerCache };
+const config_cache = new Map()
+
+export { LaundryOwnerCache, config_cache };
