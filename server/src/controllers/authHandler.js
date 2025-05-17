@@ -16,7 +16,7 @@ import { fetch_google_user } from "../utils/helpers.js";
  */
 export async function googleAuth(req, res) {
     try {
-        res.setHeader('Access-Control-Allow-Origin', CLIENT_ENDPOINT); // Replace with your client's domain
+        res.setHeader('Access-Control-Allow-Origin', client.ENDPOINT); // Replace with your client's domain
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         const { code } = req.query;
         // if unable to find code in query
