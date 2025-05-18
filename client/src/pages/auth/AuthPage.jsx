@@ -85,8 +85,14 @@ const AuthPage = ({ onLogin }) => {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    onLogin()
-    window.open(`${API_URL}/auth/login`, '_self');
+    try {
+      onLogin();
+      window.open(`${API_URL}/auth/login`, '_self');
+    } catch (error) {
+      console.error('Google sign in error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFacebookSignIn = async () => {
