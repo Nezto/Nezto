@@ -10,7 +10,10 @@ import { google_auth_url } from "../config.js";
 export const allRoutes = Router();
 
 allRoutes.get("/", (req, res) => {
-    set_cookie(req,res, "token", "test-secure");
+    if (req.query.test=== "1") {
+        set_cookie(req,res, "token", "test-secure");
+    }
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.json({ message : google_auth_url(req) });
 })
 
