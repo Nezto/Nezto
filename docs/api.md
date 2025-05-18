@@ -5,7 +5,7 @@ This document provides detailed information about the backend API for the Nezto 
 
 ## Base URL
 
-All API endpoints are relative to the following base URL: `/api`
+All API endpoints are relative to the following base URL: `https://api.nezto.tech/`
 
 ## Authentication
 
@@ -13,8 +13,8 @@ Most API endpoints require authentication using a JSON Web Token (JWT). The toke
 
 - **Obtaining a Token**: Users can obtain a token by authenticating via Google OAuth.
 - **Sending a Token**:
-    - **Header**: `Authorization: Bearer <YOUR_JWT_TOKEN>`
-    - **Cookie**: `token=<YOUR_JWT_TOKEN>`
+    [x] **Cookie**: `token=<YOUR_JWT_TOKEN>` (recommended)
+    [ ] **Header**: `Authorization: Bearer <YOUR_JWT_TOKEN>` 
 
 ## API Endpoints
 
