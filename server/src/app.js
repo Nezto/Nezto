@@ -2,11 +2,11 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { allRoutes } from "./routes/router.js"
-import { CLIENT_ENDPOINT } from "./config.js"
+import { client } from "./config.js"
 
 const app = express()
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || CLIENT_ENDPOINT || "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN || client.ENDPOINT || "http://localhost:3000",
     credentials: true
 }))
 

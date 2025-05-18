@@ -256,17 +256,6 @@ const ServicesPage = () => {
             icon: (<Leaf className='text-white'/>),
         },
         
-        // Additional Services
-        {
-            id: "shoe-care",
-            name: 'Shoe Care',
-            description: 'Professional cleaning for all types of shoes',
-            price: '₹199/pair',
-            category: 'daily',
-            popular: true,
-            turnaround: '3 days',
-            icon: (<Footprints className='text-white'/>),
-        },
         {
             id: "bag-cleaning",
             name: 'Bag Cleaning',
@@ -276,41 +265,7 @@ const ServicesPage = () => {
             popular: false,
             turnaround: '3-4 days',
             icon: (<PackageOpen className='text-white'/>),
-        },
-        {
-            id: "deep-stain-treatment",
-            name: 'Deep Stain Treatment',
-            description: 'Advanced stain removal for tough stains',
-            price: '₹179/stain',
-            category: 'daily',
-            popular: true,
-            turnaround: '2 days',
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-            ),
-        },
-        {
-            id: "premium-package",
-            name: 'Premium Package',
-            description: 'Complete laundry solution for premium clothes',
-            price: '₹799/set',
-            category: 'premium',
-            popular: false,
-            turnaround: '4-5 days',
-            icon: (<BadgeCheck className='text-white'/>),
-        },
-        {
-            id: "home-linen-package",
-            name: 'Home Linen Package',
-            description: 'Complete care for all home linens',
-            price: '₹499/set',
-            category: 'home',
-            popular: true,
-            turnaround: '3 days',
-            icon: (<Home className='text-white'/>),
-        },
+        }
     ];
 
     // Filter services based on category and search query
