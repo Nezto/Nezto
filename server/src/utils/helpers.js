@@ -111,7 +111,7 @@ export class ApiResponse {
  * @param {string} key - Cookie key
  * @param {string} value - Cookie value
  */
-export function set_cookie(req, res, key, value, domain=client.HOST, time=3150000, secure=true) {
+export function set_cookie(req, res, key, value, domain=client.HOST, time=DEFAULT_COOKIE_EXPIRATION_MS, secure=true) {
     res.cookie(key, value, { 
         expires: new Date(Date.now() + time), 
         httpOnly: true, 
