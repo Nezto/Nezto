@@ -2,13 +2,15 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { allRoutes } from "./routes/router.js"
-import { client } from "./config.js"
+import { CLIENT } from "./config.js"
+
 
 const app = express()
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || client.ENDPOINT || "http://localhost:3000",
-    credentials: true
-}))
+  origin: CLIENT.origin, 
+  credentials: true // Crucial if your frontend sends cookies or auth tokens
+}));
 
 
 app.use(express.json())

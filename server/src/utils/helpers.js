@@ -1,4 +1,4 @@
-import { google, jwtConfig, base_url, client } from "../config.js";
+import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "../config.js";
 import jwt from "jsonwebtoken";
 
 /**
@@ -111,7 +111,7 @@ export class ApiResponse {
  * @param {string} key - Cookie key
  * @param {string} value - Cookie value
  */
-export function set_cookie(req, res, key, value, domain=client.HOST, time=DEFAULT_COOKIE_EXPIRATION_MS, secure=true) {
+export function set_cookie(req, res, key, value, domain=CLIENT.hostname, time=DEFAULT_COOKIE_EXPIRATION_MS, secure=true) {
     res.cookie(key, value, { 
         expires: new Date(Date.now() + time), 
         httpOnly: true, 

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { google_auth_url, jwtConfig, client } from "../config.js";
+import { google_auth_url, jwtConfig, CLIENT } from "../config.js";
 import { User } from "../models/User.js";
 import { jwtUser } from "../utils/wrappers.js";
 import { fetch_google_user, set_cookie } from "../utils/helpers.js";
@@ -16,7 +16,7 @@ import { fetch_google_user, set_cookie } from "../utils/helpers.js";
  */
 export async function googleAuth(req, res) {
     try {
-        res.setHeader('Access-Control-Allow-Origin', client.ENDPOINT); // Replace with your client's domain
+        res.setHeader('Access-Control-Allow-Origin', CLIENT.origin); // Replace with your client's domain
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         const { code } = req.query;
         // if unable to find code in query
@@ -41,7 +41,7 @@ export async function googleAuth(req, res) {
             await _userExists.save();
             res.setHeader('token', _userExists.token);
             set_cookie(req, res, 'token', _userExists.token);
-            return res.redirect(client.ENDPOINT);
+            return res.redirect(CLIENT.origin);
         }
 
         // if user does not exist in database
@@ -51,7 +51,7 @@ export async function googleAuth(req, res) {
         newUser.token = token;
         await newUser.save();
         set_cookie(req, res, 'token', newUser.token);
-        res.redirect(client.ENDPOINT);
+        res.redirect(CLIENT.origin);
 
     } catch (error) {
         return res.json(
@@ -69,7 +69,12 @@ export async function LogIn(req, res) {
     res.redirect(google_auth_url(req));
 }
 
-
+/**
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns
+ */
 export async function authenticate(req, res) {
     try {
         if (req.cookies.token == null) {
