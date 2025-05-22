@@ -5,28 +5,12 @@ configDotenv({path : ".env"});
 
 export const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017"
 export const PORT = process.env.PORT || 8000; 
-export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-
-export const origin = `localhost:${PORT}`;
-
-export const client = {
-    HOST: process.env.CLIENT_HOST || "localhost",
-    ENDPOINT: process.env.CLIENT_ENDPOINT || "http://localhost:3000",
-    ORIGIN: process.env.CLIENT_ORIGIN || "localhost:3000",
-}
-
+export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000 * 30; // 30 days in milliseconds
+export const CLIENT = new URL(process.env.CLIENT_ENDPOINT || "http://localhost:3000")
 
 export const jwtConfig = {
     secret: process.env.JWT_SECRET,
     expire: process.env.JWT_EXPIRE || "1d"
-}
-
-export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-export const options = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'None'
 }
 
 export const google = {
@@ -40,6 +24,7 @@ export const google = {
 /**
  * 
  * @param {import('express').Request} req 
+ * @returns {string} base url
  */
 export function base_url(req){
     let _base_url = config_cache.get("base_url")

@@ -25,7 +25,7 @@ export async function ApiCall(path, method="GET", data) {
 
 
 export async function FetchApi(path, option={}) {
-  return fetch(`${API_URL || "http://localhost:8000"}${path}`, {
+  return fetch(`${API_URL}${path}`, {
     credentials: "include",
     ...option,
   });
