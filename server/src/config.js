@@ -21,6 +21,8 @@ export const jwtConfig = {
     expire: process.env.JWT_EXPIRE || "1d"
 }
 
+export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
 export const options = {
     httpOnly: true,
     secure: true,

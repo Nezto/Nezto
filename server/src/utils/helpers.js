@@ -1,4 +1,4 @@
-import { google, jwtConfig, base_url, client } from "../config.js";
+import { google, jwtConfig, base_url, client, DEFAULT_COOKIE_EXPIRATION_MS } from "../config.js";
 import jwt from "jsonwebtoken";
 
 /**
