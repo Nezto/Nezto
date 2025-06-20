@@ -1,0 +1,4 @@
+# ESLint and Prettier
+node_modules/
+dist/
+.env

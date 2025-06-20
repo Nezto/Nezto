@@ -1,53 +1,60 @@
 import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
-import { google_auth_url, jwtConfig, CLIENT } from "@/config";
 import { User } from "@/models/User";
 import { jwtUser } from "@utils/wrappers";
+import { Request, Response } from "express";
+import { UserRoles } from "@/utils/constants";
+import { google_auth_url, jwtConfig, CLIENT } from "@/config";
 import { fetch_google_user, set_cookie } from "@utils/helpers";
 
 
+
+
 /**Handles Google OAuth authentication*/
-export async function googleAuth(req : Request, res : Response){
+export async function googleAuth(req : Request, res : Response) : Promise<void>{
     try {
-        res.setHeader('Access-Control-Allow-Origin', CLIENT.origin); // Replace with your client's domain
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
         const { code } = req.query;
+        
         // if unable to find code in query
         if (!code) {
-            return res.status(401).json({ message: 'Invalid authentication', error: "code not found in query" });
+            res.status(401).json({ message: 'Invalid authentication', error: "code not found in query" });
+            return;
         }
 
-        const _user = await fetch_google_user(req);
+        // fetching user from google Oauth api
+        
+        const googleUser = await fetch_google_user(req);
+
         // if unable to find user from google Oauth api
-        if (!_user) {
-            return res.status(401).json({ message: 'Invalid authentication' });
+        if (!googleUser) {
+            res.status(401).json({ message: 'Invalid authentication' });
+            return;
         }
 
         // if user already exists in database
-        const _userExists = await User.findOne({ email: _user.email });
-        if (_userExists) {
-            _userExists.picture = _user.picture;
-            _userExists.name = _user.name;
-            _userExists.token = jwt.sign(jwtUser(_userExists), jwtConfig.secret);
-            await _userExists.save();
-            res.setHeader('token', _userExists.token);
-            set_cookie(req, res, 'token', _userExists.token);
+        const existingUser = await User.findOne({ email: googleUser?.email });
+        if (existingUser) {
+            existingUser.picture = googleUser.picture;
+            existingUser.name = googleUser.name;
+            existingUser.token = jwt.sign(jwtUser(existingUser), jwtConfig.secret);
+            await existingUser.save();
+            set_cookie(req, res, 'token', existingUser.token);
             res.redirect(CLIENT.origin);
+            return;
         }
 
         // if user does not exist in database
-        const newUser = new User({ email: _user.email, picture: _user.picture, name: _user.name, role: "user" })
+        const newUser = new User({ email: googleUser.email, picture: googleUser.picture, name: googleUser.name, role: UserRoles.user })
         const token = jwt.sign(jwtUser({ ...newUser.toObject() }), jwtConfig.secret);
 
         newUser.token = token;
         await newUser.save();
         set_cookie(req, res, 'token', newUser.token);
-        res.setHeader('token', newUser.token);
         res.redirect(CLIENT.origin);
+        return;
     } 
     
     catch (error : any) {
-        return res.status(500).json(
+        res.status(500).json(
             { code: 500, message: "server error", error: error.message || "" }
         );
     }

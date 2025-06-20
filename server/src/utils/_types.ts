@@ -1,7 +1,7 @@
 
 export class GoogleUser{
 
-    sub: bigint;
+    sub: string;
     name: string;
     given_name: string;
     picture: string;
@@ -11,7 +11,7 @@ export class GoogleUser{
 
 
       constructor(obj: Record<string, any>) {
-            this.sub = BigInt(obj.sub);
+            this.sub = String(obj.sub || "");
             this.name = String(obj.name || "");
             this.given_name = String(obj.given_name || "");
             this.picture = String(obj.picture || "");

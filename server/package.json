@@ -10,7 +10,9 @@
   "scripts": {
     "start": "node src/index.ts",
     "build": "tsc",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "lint": "eslint --ext .ts,.js src/",
+    "lint:fix": "eslint --ext .ts,.js src/ --fix"
   },
   "_moduleAliases": {
     "@": "./src"
@@ -31,7 +33,13 @@
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.0",
     "nodemon": "^3.1.9",
+    "prettier": "^3.5.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }

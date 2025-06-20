@@ -1,11 +1,12 @@
-import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "@/config";
-import { JwtUser } from "./_types";
 import jwt from "jsonwebtoken";
+import { Request, Response } from "express";
+import { JwtUser, GoogleUser } from "./_types";
+import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "@/config";
 
 /**
  * @description Fetch Google user profile using OAuth2
  */
-export async function fetch_google_user(req : import('express').Request) : Promise<import('./_types.js').GoogleUser | null> {
+export async function fetch_google_user(req : Request) : Promise<GoogleUser | null> {
     try {
         const _payload : Record<string, any> = {
             code: req.query.code,
@@ -32,8 +33,8 @@ export async function fetch_google_user(req : import('express').Request) : Promi
         _response = await fetch(`${google.user_profile}?access_token=${_json.access_token}`);
 
         // user profile data
-        const _data = await _response.json();
-        return _data;
+        const _data : GoogleUser = await _response.json();
+        return new GoogleUser(_data);
 
     } catch (error : any) {
         console.error('OAuth token error:', error.response?.data || error.message);
@@ -45,7 +46,7 @@ export async function fetch_google_user(req : import('express').Request) : Promi
 /**
  * @description Get user token from request
  */
-export function get_user_token(req : import('express').Request) : string | null {
+export function get_user_token(req : Request) : string | null {
     try {
         if (!req.cookies.token && (!req.headers.authorization || !req.headers.authorization?.startsWith('Bearer'))) return null;
         return req.cookies.token || req.headers?.authorization?.split(' ')[1];
@@ -102,10 +103,16 @@ export class ApiResponse {
 }
 
 
-/**
- * @description Set cookie in response
- */
-export function set_cookie(req : import('express').Request, res : import('express').Response, key : string, value : string, domain=CLIENT.hostname, time=DEFAULT_COOKIE_EXPIRATION_MS, secure=true) {
+/**@description Set cookie in response*/
+export function set_cookie(
+    req : Request, 
+    res : Response, 
+    key : string, 
+    value : string, 
+    domain=CLIENT.hostname, 
+    time=DEFAULT_COOKIE_EXPIRATION_MS, 
+    secure=true
+) {
     res.cookie(key, value, { 
         expires: new Date(Date.now() + time), 
         httpOnly: true, 

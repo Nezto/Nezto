@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema } from 'mongoose';
 
 const VendorSchema = new Schema(
   {
@@ -7,14 +7,14 @@ const VendorSchema = new Schema(
     location: {
       type: {
         type: String,
-        enum: ["Point"],
+        enum: ['Point'],
         required: true,
       },
-      coordinates: { type: [Number], required: true, index: "2dsphere" }, // [longitude, latitude]
+      coordinates: { type: [Number], required: true, index: '2dsphere' }, // [longitude, latitude]
     },
-    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const Vendor = model("Vendor", VendorSchema);
+export const Vendor = model('Vendor', VendorSchema);
