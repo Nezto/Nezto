@@ -1,27 +1,26 @@
 import jwt from "jsonwebtoken";
+import { Request, Response } from "express";
 import { google_auth_url, jwtConfig, CLIENT } from "@/config";
-import { User } from "../models/User.js";
-import { jwtUser } from "../utils/wrappers.js";
-import { fetch_google_user, set_cookie } from "../utils/helpers.js";
+import { User } from "@/models/User";
+import { jwtUser } from "@utils/wrappers";
+import { fetch_google_user, set_cookie } from "@utils/helpers";
 
 
 /**Handles Google OAuth authentication*/
-export async function googleAuth(req : import('express').Request, res:import('express').Response) {
+export async function googleAuth(req : Request, res : Response){
     try {
         res.setHeader('Access-Control-Allow-Origin', CLIENT.origin); // Replace with your client's domain
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         const { code } = req.query;
         // if unable to find code in query
         if (!code) {
-            res.status(401).json({ message: 'Invalid authentication', error: "code not found in query" });
-            return;
+            return res.status(401).json({ message: 'Invalid authentication', error: "code not found in query" });
         }
 
         const _user = await fetch_google_user(req);
         // if unable to find user from google Oauth api
         if (!_user) {
-            res.status(401).json({ message: 'Invalid authentication' });
-            return;
+            return res.status(401).json({ message: 'Invalid authentication' });
         }
 
         // if user already exists in database
@@ -33,7 +32,7 @@ export async function googleAuth(req : import('express').Request, res:import('ex
             await _userExists.save();
             res.setHeader('token', _userExists.token);
             set_cookie(req, res, 'token', _userExists.token);
-            return res.redirect(CLIENT.origin);
+            res.redirect(CLIENT.origin);
         }
 
         // if user does not exist in database
@@ -43,22 +42,27 @@ export async function googleAuth(req : import('express').Request, res:import('ex
         newUser.token = token;
         await newUser.save();
         set_cookie(req, res, 'token', newUser.token);
+        res.setHeader('token', newUser.token);
         res.redirect(CLIENT.origin);
-
-    } catch (error : any) {
-        return res.json(
+    } 
+    
+    catch (error : any) {
+        return res.status(500).json(
             { code: 500, message: "server error", error: error.message || "" }
         );
     }
 }
 
+
+
+
 /**Handle login redirection to Google OAuth*/
-export async function LogIn(req : import('express').Request , res : import('express').Response) {
+export async function LogIn(req : Request, res : Response) {
     res.redirect(google_auth_url(req));
 }
 
 
-export async function authenticate(req : import('express').Request, res : import('express').Response) {
+export async function authenticate(req : Request, res : Response) {
     try {
         if (req.cookies.token == null) {
             if (!req.headers.authorization || !`${req.headers.authorization}`.startsWith('Bearer ')) {
@@ -77,7 +81,7 @@ export async function authenticate(req : import('express').Request, res : import
 
 
 /** clears cookie, reset user token */
-export async function logout(req : import('express').Request, res : import('express').Response) {
+export async function logout(req : Request, res : Response) {
     try {
         // logout from all devices
         if (req.query.all) {

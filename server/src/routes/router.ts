@@ -1,11 +1,11 @@
 import { Router } from "express";
-import authRoute from "./authRoute.js";
-import laundryRoute from "./laundryRoute.js";
-import orderRoute from "./orderRoute.js";
-import userRoute from "./userRoute.js";
-import serviceRoute from "./serviceRoute.js";
-import { set_cookie } from "../utils/helpers.js";
-import { google_auth_url } from "../config.js";
+import authRoute from "@/routes/authRoute";
+import laundryRoute from "./laundryRoute";
+import orderRoute from "./orderRoute";
+import userRoute from "./userRoute";
+import serviceRoute from "./serviceRoute";
+import { set_cookie } from "../utils/helpers";
+import { google_auth_url } from "@/config";
 
 export const allRoutes = Router();
 
