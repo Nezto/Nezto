@@ -1,16 +1,21 @@
 import { Server } from 'socket.io';
+import { CLIENT } from '@/config';
 import http from 'http';
-import { app } from '../app.js';
+import { app } from '@/app';
 
 const server = http.createServer(app);
+const onlineUsers = new Set<string>();
 const io = new Server(server, {
     cors: {
-        origin: process.env.CORS_ORIGIN || "http://localhost:5173/"
+        origin: CLIENT.origin
     }
 })
 
 io.on("connection", (socket) => {
-    onsole.log("A user connected:", socket.id);
+    console.log("A user connected:", socket.id);
+    
+    onlineUsers.add(socket.id);
+    io.emit("online-users", Array.from(onlineUsers.values()));
 
     socket.on("connect_error", (err) => {
         console.error("Socket connection error:", err.message);

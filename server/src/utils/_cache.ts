@@ -7,21 +7,16 @@
 class _LaundryOwnerCache extends Map {
     /**
      * @description Adds a key-value pair to the cache.
-     * @param {string} key - The key to add.
-     * @param {Number} value - The value to associate with the key.
-     * @returns {_LaundryOwnerCache} The cache instance.
      */
-    set(key, value) {
+    set(key:string, value:string) : this {
         super.set(`${key}`, `${value}`); // Convert value to string before storing
         return this;
     }
 
     /**
      * @description Retrieves a value from the cache by key.
-     * @param {string} key - The key to retrieve.
-     * @returns {String} The value associated with the key, or null if not found. and in future the return value might change to a more complex object.
      */
-    get(key) {
+    get(key : string) : string | null {
         return super.get(key) || null;
     }
 

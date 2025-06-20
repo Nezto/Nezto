@@ -81,12 +81,10 @@ export const getLaundryServiceById = async (req, res) => {
 
 /**
  * @desc    Create new laundry service
- * @param  {import("express").Request} req - Express request object
- * @param  {import("express").Response} res - Express response object
  * @route   POST /api/laundry
  * @access  Private (Owner)
  */
-export const createLaundryService = async (req, res) => {
+export const createLaundryService = async (req : import("express").Request, res : import("express").Response) => {
   try {
     const { status, location } = req.body;
     
@@ -102,7 +100,7 @@ export const createLaundryService = async (req, res) => {
     const newLaundryService = new Laundry({
       status: status || true,
       location,
-      owner: req.user.id // Assuming middleware sets req.user
+      owner: req.user?.id // Assuming middleware sets req.user
     });
 
     const savedLaundryService = await newLaundryService.save();
@@ -112,7 +110,7 @@ export const createLaundryService = async (req, res) => {
       message: "Laundry service created successfully",
       data: savedLaundryService
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error creating laundry service:", error);
     res.status(500).json({
       success: false,
@@ -124,12 +122,10 @@ export const createLaundryService = async (req, res) => {
 
 /**
  * @desc    Update laundry service
- * @param  {import("express").Request} req - Express request object
- * @param  {import("express").Response} res - Express response object
  * @route   PUT /api/laundry/:id
  * @access  Private (Owner)
  */
-export const updateLaundryService = async (req, res) => {
+export const updateLaundryService = async (req : import("express").Request, res : import("express").Response) => {
   try {
     const { status, location, rating } = req.body;
     
@@ -144,7 +140,7 @@ export const updateLaundryService = async (req, res) => {
     }
     
     // Check ownership
-    if (laundryService.owner.toString() !== req.user.id) {
+    if (laundryService.owner.toString() !== req.user?.id && req.user?.role !== "admin") {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to update this laundry service"
@@ -164,7 +160,7 @@ export const updateLaundryService = async (req, res) => {
       message: "Laundry service updated successfully",
       data: updatedService
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error updating laundry service:", error);
     
     if (error.kind === "ObjectId") {
@@ -182,14 +178,13 @@ export const updateLaundryService = async (req, res) => {
   }
 };
 
+
 /**
  * @desc    Delete laundry service
- * @param  {import("express").Request} req - Express request object
- * @param  {import("express").Response} res - Express response object
  * @route   DELETE /api/laundry/:id
  * @access  Private (Owner)
  */
-export const deleteLaundryService = async (req, res) => {
+export const deleteLaundryService = async (req : import("express").Request, res : import("express").Response) => {
   try {
     // Find laundry service
     const laundryService = await Laundry.findById(req.params.id);
@@ -210,13 +205,16 @@ export const deleteLaundryService = async (req, res) => {
     }
     
     // Delete service
-    await laundryService.remove();
+    await laundryService.deleteOne(
+        { _id: req.params.id }
+    );
     
     res.status(200).json({
       success: true,
       message: "Laundry service deleted successfully"
     });
-  } catch (error) {
+
+  } catch (error : any) {
     console.error("Error deleting laundry service:", error);
     
     if (error.kind === "ObjectId") {
@@ -236,19 +234,18 @@ export const deleteLaundryService = async (req, res) => {
 
 /**
  * @desc    Get laundry services by proximity
- * @param  {import("express").Request} req - Express request object
- * @param  {import("express").Response} res - Express response object
- * @route   GET /api/laundry/nearby
+ * @route   GET /api/laundry/nearby?lat={lat}&lng={lng}&distance={distance}
  * @access  Public
- * @param   {number} lat - Latitude
- * @param   {number} lng - Longitude
- * @param   {number} distance - Distance in meters (optional, default: 5000)
  */
-export const getNearbyLaundryServices = async (req, res) => {
+export const getNearbyLaundryServices = async (req : import("express").Request, res : import("express").Response) => {
   try {
     const { lat, lng, distance = 5000 } = req.query;
-    
-    if (!lat || !lng) {
+
+    const latitude = Number(lat);
+    const longitude = Number(lng);
+    const maxDistance = Number(distance);
+
+    if (!latitude || !longitude) {
       return res.status(400).json({
         success: false,
         message: "Please provide latitude and longitude coordinates"
@@ -261,9 +258,9 @@ export const getNearbyLaundryServices = async (req, res) => {
         $near: {
           $geometry: {
             type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)]
+            coordinates: [longitude, latitude]
           },
-          $maxDistance: parseInt(distance)
+          $maxDistance: maxDistance
         }
       },
       status: true // Only active services
@@ -274,7 +271,7 @@ export const getNearbyLaundryServices = async (req, res) => {
       count: nearbyServices.length,
       data: nearbyServices
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error finding nearby laundry services:", error);
     res.status(500).json({
       success: false,
@@ -288,12 +285,10 @@ export const getNearbyLaundryServices = async (req, res) => {
 
 /**
  * @desc    Update laundry service rating
- * @param  {import("express").Request} req - Express request object
- * @param  {import("express").Response} res - Express response object
  * @route   PATCH /api/laundry/:id/rating
  * @access  Private (Authenticated user)
  */
-export const updateLaundryRating = async (req, res) => {
+export const updateLaundryRating = async (req : import("express").Request, res : import("express").Response) => {
   try {
     const { rating } = req.body;
     
@@ -325,7 +320,7 @@ export const updateLaundryRating = async (req, res) => {
       message: "Laundry service rating updated successfully",
       data: updatedService
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error updating laundry rating:", error);
     
     if (error.kind === "ObjectId") {
@@ -350,7 +345,7 @@ export const updateLaundryRating = async (req, res) => {
  * @route   PATCH /api/laundry/:id/toggle-status
  * @access  Private (Owner)
  */
-export const toggleLaundryServiceStatus = async (req, res) => {
+export const toggleLaundryServiceStatus = async (req : import("express").Request, res : import("express").Response) => {
   try {
     // Find laundry service, next step to cache the data for fast retrieval
     const laundryService = await Laundry.findById(req.params.id);
@@ -374,7 +369,7 @@ export const toggleLaundryServiceStatus = async (req, res) => {
       data: updatedService
     });
     
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error toggling laundry service status:", error);
     
     if (error.kind === "ObjectId") {

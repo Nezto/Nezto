@@ -1,18 +1,7 @@
 import { model, Schema } from "mongoose";
 
-/**
- * @typedef {Object} User
- * @property {string} email - User's email
- * @property {string} token - JWT token from Google OAuth
- * @property {string} name - User's name
- * @property {string} [profile] - Profile image URL
- * @property {('user'|'rider'|'vendor'|'admin')} [role=user] - User's role
- * @property {string} [location] - User's location coordinates [lat, lon]
- * @property {Date} createdAt - Timestamp when the user was created
- * @property {Date} updatedAt - Timestamp when the user was last updated
- */
 
-const UserSchema = new Schema(
+export const UserSchema = new Schema(
     {
         email : { type: String, required: true, unique: true },
         token: { type: String, required: true }, // JWT token from Google OAuth

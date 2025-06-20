@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
-import { allRoutes } from "./routes/router.js"
+import { allRoutes } from "@/routes/router"
 import { CLIENT } from "./config.js"
 
 

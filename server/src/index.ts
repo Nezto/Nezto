@@ -1,7 +1,7 @@
-import {PORT} from "./src/config.js"
-import connectDB from './src/db/db.js'
+import {PORT} from "@/config"
+import connectDB from '@/db/db'
 // import { app } from "./src/app.js"
-import { server } from "./src/socket/socket.js";
+import { server } from "@/socket/socket";
 
 
 
