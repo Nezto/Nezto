@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 
-const laundrySchema = new Schema(
+const VendorSchema = new Schema(
   {
     status: { type: Boolean, default: true },
     rating: { type: Number, min: 0, max: 5, default: 0 },
@@ -17,4 +17,4 @@ const laundrySchema = new Schema(
   { timestamps: true }
 );
 
-export const Laundry = model("Laundry", laundrySchema);
+export const Vendor = model("Vendor", VendorSchema);

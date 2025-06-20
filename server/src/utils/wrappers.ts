@@ -3,11 +3,8 @@
 
 /**
  * Transforms a user object into a JWT user object.
- *
- * @param {import('./_types').JwtUser} user - The user object to transform.
- * @returns {import('./_types').JwtUser} The transformed JWT user object.
  */
-export function jwtUser(user) {
+export function jwtUser(user : any) : import('./_types').JwtUser {
     return {
         _id: user._id,
         email: user.email,

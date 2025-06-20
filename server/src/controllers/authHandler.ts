@@ -1,20 +1,12 @@
 import jwt from "jsonwebtoken";
-import { google_auth_url, jwtConfig, CLIENT } from "../config.js";
+import { google_auth_url, jwtConfig, CLIENT } from "@/config";
 import { User } from "../models/User.js";
 import { jwtUser } from "../utils/wrappers.js";
 import { fetch_google_user, set_cookie } from "../utils/helpers.js";
 
 
-/**
- * Handles Google OAuth authentication
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<void>} Promise that resolves when authentication is complete
- * @description
- * Expected request query:
- * - code: Google OAuth token
- */
-export async function googleAuth(req, res) {
+/**Handles Google OAuth authentication*/
+export async function googleAuth(req : import('express').Request, res:import('express').Response) {
     try {
         res.setHeader('Access-Control-Allow-Origin', CLIENT.origin); // Replace with your client's domain
         res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -53,29 +45,20 @@ export async function googleAuth(req, res) {
         set_cookie(req, res, 'token', newUser.token);
         res.redirect(CLIENT.origin);
 
-    } catch (error) {
+    } catch (error : any) {
         return res.json(
             { code: 500, message: "server error", error: error.message || "" }
         );
     }
 }
 
-/**
- * Handle login redirection to Google OAuth
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- */
-export async function LogIn(req, res) {
+/**Handle login redirection to Google OAuth*/
+export async function LogIn(req : import('express').Request , res : import('express').Response) {
     res.redirect(google_auth_url(req));
 }
 
-/**
- *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns
- */
-export async function authenticate(req, res) {
+
+export async function authenticate(req : import('express').Request, res : import('express').Response) {
     try {
         if (req.cookies.token == null) {
             if (!req.headers.authorization || !`${req.headers.authorization}`.startsWith('Bearer ')) {
@@ -83,17 +66,18 @@ export async function authenticate(req, res) {
                 return;
             }
         }
-        const token = req.cookies.token || req.headers.authorization.split(' ')[1];
+        const token = req.cookies.token || req.headers?.authorization?.split(' ')[1];
         const _user = jwt.verify(token, jwtConfig.secret);
         res.status(200).json(_user);
-    } catch (error) {
+
+    } catch (error : any) {
         res.status(401).json({ message: 'Invalid authentication', error: error.message || "" });
     }
 }
 
 
-
-export async function logout(req, res) {
+/** clears cookie, reset user token */
+export async function logout(req : import('express').Request, res : import('express').Response) {
     try {
         // logout from all devices
         if (req.query.all) {
@@ -106,7 +90,9 @@ export async function logout(req, res) {
 
         res.clearCookie('token');
         res.status(200).json({ message: 'logged out' });
-    } catch (error) {
+    } 
+    
+    catch (error : any) {
         res.status(500).json({ message: 'server error', error: error.message || "" });
     }
 }

@@ -1,32 +1,26 @@
-import { Order } from "../models/Order.js";
-import { ApiResponse } from "../utils/helpers.js";
+
 import mongoose from "mongoose";
-import {
-    calculateDistance
-} from "../utils/approxDistanceCount.js";
-import { io } from "../socket/socket.js";
-import { User } from "../models/User.js";
+import { io } from "@/socket/socket";
+import { User } from "@/models/User";
+import { Order } from "@/models/Order";
+import { ApiResponse } from "@/utils/helpers";
+import { Request, Response } from "express";
+import { calculateDistance } from "@/utils/approxDistanceCount";
 import crypto from "crypto";
 
-/**
- * @description Create a new order
- * @route POST /api/order
- * @param {import('express').Request} req - Express request object containing order details in body
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<import('express').Response>} Response with created order
- */
+
 const generateOTP = () => crypto.randomInt(100000, 999999).toString();
 
-/**
- * @description Create new order (without OTP initially)
- */
-async function createOrder(req, res) {
+
+
+/**Create new order (without OTP initially)*/
+async function createOrder(req: Request, res: Response) {
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
         const { price, type, user, vendor, pick_time, drop_time } = req.body;
-        
+
         // Validate required fields
         if (!price || !type || !user || !vendor || !pick_time || !drop_time) {
             return res.status(400).json({ success: false, message: "All fields are required" });
@@ -74,16 +68,18 @@ async function createOrder(req, res) {
         });
 
         await session.commitTransaction();
-        
+
         return res.status(201).json(
             new ApiResponse(201, order, "Order created successfully. Waiting for vendor acceptance.")
         );
 
-    } catch (error) {
+    }
+
+    catch (error: any) {
         await session.abortTransaction();
         console.error("Error creating order:", error);
         return res.status(500).json(
-            new ApiResponse(500, null, "Internal server error", false, error.message)
+            new ApiResponse(500, null, "Internal server error")
         );
     } finally {
         session.endSession();
@@ -93,10 +89,10 @@ async function createOrder(req, res) {
 /**
  * @description Vendor accepts order and generates user OTP
  */
-async function vendorAcceptOrder(req, res) {
+async function vendorAcceptOrder(req: Request, res: Response) {
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
         const { id } = req.params;
         const { vendorId } = req.body;
@@ -117,7 +113,7 @@ async function vendorAcceptOrder(req, res) {
 
         // Generate user OTP
         const userOTP = generateOTP();
-        order.user_otp = userOTP;
+        order.otp = userOTP;
         order.status = "accepted";
         await order.save({ session });
 
@@ -128,7 +124,7 @@ async function vendorAcceptOrder(req, res) {
         }
 
         // Find nearby riders (15km radius)
-        const riders = await User.find({ 
+        const riders = await User.find({
             role: 'rider',
             location: { $exists: true }
         }).session(session);
@@ -167,7 +163,7 @@ async function vendorAcceptOrder(req, res) {
         });
 
         await session.commitTransaction();
-        
+
         return res.status(200).json(
             new ApiResponse(200, order, "Order accepted by vendor. User OTP generated. Searching for riders.")
         );
@@ -176,7 +172,7 @@ async function vendorAcceptOrder(req, res) {
         await session.abortTransaction();
         console.error("Error in vendor acceptance:", error);
         return res.status(500).json(
-            new ApiResponse(500, null, "Internal server error", false, error.message)
+            new ApiResponse(500, null, "Internal server error")
         );
     } finally {
         session.endSession();
@@ -186,10 +182,10 @@ async function vendorAcceptOrder(req, res) {
 /**
  * @description Rider accepts order
  */
-async function riderAcceptOrder(req, res) {
+async function riderAcceptOrder(req: Request, res: Response): Promise<Response> {
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
         const { id } = req.params;
         const { riderId } = req.body;
@@ -212,7 +208,7 @@ async function riderAcceptOrder(req, res) {
 
         // Assign rider and update status
         order.rider = riderId;
-        order.status = "rider_assigned";
+        order.status = "to_client";
         await order.save({ session });
 
         // Notify user with OTP
@@ -223,12 +219,12 @@ async function riderAcceptOrder(req, res) {
                 name: rider.name,
                 picture: rider.picture
             },
-            user_otp: order.user_otp,
+            user_otp: order.otp,
             pick_time: order.pick_time
         });
 
         await session.commitTransaction();
-        
+
         return res.status(200).json(
             new ApiResponse(200, order, "Rider assigned. User notified with OTP.")
         );
@@ -237,7 +233,7 @@ async function riderAcceptOrder(req, res) {
         await session.abortTransaction();
         console.error("Error in rider acceptance:", error);
         return res.status(500).json(
-            new ApiResponse(500, null, "Internal server error", false, error.message)
+            new ApiResponse(500, null, "Internal server error")
         );
     } finally {
         session.endSession();
@@ -247,10 +243,10 @@ async function riderAcceptOrder(req, res) {
 /**
  * @description Verify user OTP (when rider collects laundry)
  */
-async function verifyUserOTP(req, res) {
+async function verifyUserOTP(req: Request, res: Response): Promise<Response> {
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
         const { id } = req.params;
         const { otp } = req.body;
@@ -261,34 +257,34 @@ async function verifyUserOTP(req, res) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        if (order.status !== "rider_assigned") {
+        if (order.status !== "to_client") {
             return res.status(400).json({ success: false, message: "Invalid order state" });
         }
 
         // Verify OTP matches
-        if (order.user_otp !== otp) {
+        if (order.otp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid OTP" });
         }
 
         // Generate vendor OTP
         const vendorOTP = generateOTP();
-        order.vendor_otp = vendorOTP;
-        order.status = "user_verified";
+        order.otp = vendorOTP;
+        order.status = "to_vendor"; // Update status to indicate user verified
         await order.save({ session });
 
         // Notify vendor with OTP
-        io.to(`vendor_${order.vendor}`).emit('ready_for_delivery', {
-            orderId: order._id,
-            vendor_otp: vendorOTP,
-            rider: {
-                id: order.rider,
-                name: (await User.findById(order.rider)).name
-            },
-            drop_time: order.drop_time
-        });
+        // io.to(`vendor_${order.vendor}`).emit('ready_for_delivery', {
+        //     orderId: order._id,
+        //     vendor_otp: vendorOTP,
+        //     rider: {
+        //         id: order.rider,
+        //         name: (await User.findById(order.rider)).name
+        //     },
+        //     drop_time: order.drop_time
+        // });
 
         await session.commitTransaction();
-        
+
         return res.status(200).json(
             new ApiResponse(200, order, "User OTP verified. Vendor OTP generated.")
         );
@@ -297,7 +293,7 @@ async function verifyUserOTP(req, res) {
         await session.abortTransaction();
         console.error("Error in user OTP verification:", error);
         return res.status(500).json(
-            new ApiResponse(500, null, "Internal server error", false, error.message)
+            new ApiResponse(500, null, "Internal server error")
         );
     } finally {
         session.endSession();
@@ -307,10 +303,10 @@ async function verifyUserOTP(req, res) {
 /**
  * @description Verify vendor OTP (when rider delivers laundry)
  */
-async function verifyVendorOTP(req, res) {
+async function verifyVendorOTP(req: Request, res: Response): Promise<Response> {
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
         const { id } = req.params;
         const { otp } = req.body;
@@ -321,12 +317,12 @@ async function verifyVendorOTP(req, res) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        if (order.status !== "user_verified") {
+        if (order.status !== "to_vendor") {
             return res.status(400).json({ success: false, message: "Invalid order state" });
         }
 
         // Verify OTP matches
-        if (order.vendor_otp !== otp) {
+        if (order.otp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid OTP" });
         }
 
@@ -340,24 +336,28 @@ async function verifyVendorOTP(req, res) {
             orderId: order._id,
             completed_at: order.completed_at
         };
-        
+
         io.to(`user_${order.user}`).emit('order_completed', emitData);
         io.to(`vendor_${order.vendor}`).emit('order_completed', emitData);
         io.to(`rider_${order.rider}`).emit('order_completed', emitData);
 
         await session.commitTransaction();
-        
+
         return res.status(200).json(
             new ApiResponse(200, order, "Vendor OTP verified. Order completed successfully.")
         );
 
-    } catch (error) {
+    } 
+    
+    catch (error: any) {
         await session.abortTransaction();
         console.error("Error in vendor OTP verification:", error);
         return res.status(500).json(
-            new ApiResponse(500, null, "Internal server error", false, error.message)
+            new ApiResponse(500, null, "Internal server error", error.message)
         );
-    } finally {
+    } 
+    
+    finally {
         session.endSession();
     }
 }
@@ -366,15 +366,12 @@ async function verifyVendorOTP(req, res) {
 /**
  * @description Get all orders with populated user, vendor and rider details
  * @route GET /api/order
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<import('express').Response>} Response with array of orders
  */
-async function getAllOrders(req, res) {
+async function getAllOrders(req: Request, res: Response): Promise<Response> {
     try {
         // Add optional query parameters for filtering
         const { status, type, vendor_id, user_id } = req.query;
-        
+
         // Build filter object
         const filter = {};
         if (status) filter.status = status;
@@ -409,17 +406,17 @@ async function getAllOrders(req, res) {
         const sanitizedOrders = orders.map(order => {
             const orderObj = order.toObject();
             // Remove OTP from the response if it's sensitive
-            delete orderObj.otp;
+            orderObj.otp = '***'; // Mask OTP for security
             return orderObj;
         });
 
         return res.status(200).json(
             new ApiResponse(200, sanitizedOrders, "Orders fetched successfully")
         );
-    } catch (error) {
+    } catch (error : any) {
         console.error("Error fetching orders:", error);
         return res.status(500).json(
-            new ApiResponse(500, null, "Internal server error", false, error.message)
+            new ApiResponse(500, null, "Internal server error", error.message)
         );
     }
 }
@@ -429,11 +426,8 @@ async function getAllOrders(req, res) {
 /**
  * @description Get a specific order by ID with populated user, vendor and rider details
  * @route GET /api/order/:id
- * @param {import('express').Request} req - Express request object containing order ID in params
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<import('express').Response>} Response with requested order
  */
-async function getOrderById(req, res) {
+async function getOrderById(req: Request, res: Response): Promise<Response> {
     try {
         const { id } = req.params;
 
@@ -531,11 +525,8 @@ async function getOrderById(req, res) {
 /**
  * @description Update an order by ID
  * @route PUT /api/order/:id
- * @param {import('express').Request} req - Express request object containing order ID in params and update fields in body
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<import('express').Response>} Response with updated order
  */
-async function updateOrderById(req, res) {
+async function updateOrderById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const { price, type, status, rider, pick_time, drop_time } = req.body;
 
@@ -565,11 +556,8 @@ async function updateOrderById(req, res) {
 /**
  * @description Delete an order by ID
  * @route DELETE /api/order/:id
- * @param {import('express').Request} req - Express request object containing order ID in params
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<import('express').Response>} Response indicating successful deletion
  */
-async function deleteOrderById(req, res) {
+async function deleteOrderById(req: Request, res: Response): Promise<Response> {
     try {
         const { id } = req.params;
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -581,14 +569,14 @@ async function deleteOrderById(req, res) {
         }
         return res.status(200).json(new ApiResponse(200, {}, "Order deleted successfully"));
     }
-    catch (error) {
-        return res.status(500).json(new ApiResponse(500, null, "Internal server error", error.message));
+    catch (error: any) {
+        return res.status(500).json(new ApiResponse(500, null, "Internal server error"));
     }
 }
 
 export {
-    createOrder, 
-    vendorAcceptOrder, 
+    createOrder,
+    vendorAcceptOrder,
     riderAcceptOrder,
     verifyUserOTP,
     verifyVendorOTP,

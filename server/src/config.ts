@@ -9,7 +9,7 @@ export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000 * 30; // 30 days
 export const CLIENT = new URL(process.env.CLIENT_ENDPOINT || "http://localhost:3000")
 
 export const jwtConfig = {
-    secret: process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET || "default_secret_key",
     expire: process.env.JWT_EXPIRE || "1d"
 }
 

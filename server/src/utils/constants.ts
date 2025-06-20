@@ -1,0 +1,13 @@
+
+
+
+export const OrderStatus = {
+    pending: "pending",
+    accepted: "accepted",
+    to_client: "to_client",
+    to_vendor: "to_rider",
+    processing: "processing",
+    completed: "completed",
+    canceled: "canceled",
+    refunded: "refunded"
+}

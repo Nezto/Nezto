@@ -11,9 +11,6 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "_moduleAliases": {
-    "@": "./src"
-  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",

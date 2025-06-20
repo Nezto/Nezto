@@ -1,4 +1,5 @@
-import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "../config.js";
+import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "@/config";
+import { JwtUser } from "./_types";
 import jwt from "jsonwebtoken";
 
 /**
@@ -58,9 +59,9 @@ export function get_user_token(req : import('express').Request) : string | null 
 /**
  * @description Generate JWT token
  */
-export function verifyJWT(token : string) : import("./_types.js").JwtUser | null {
+export function verifyJWT(token : string) : JwtUser | null {
     try {
-        return jwt.verify(token, jwtConfig.secret || "default");
+        return new JwtUser(jwt.verify(token, jwtConfig.secret || "default"));
     } catch (error) {
         return null;
     }
