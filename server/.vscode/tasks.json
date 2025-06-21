@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "shell",
+            "label": "Run ESLint",
+            "command": "npm run lint",
+            "group": "test"
+        }
+    ]
+}

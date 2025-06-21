@@ -1,5 +1,5 @@
 import { configDotenv } from "dotenv";
-import { config_cache } from "./utils/_cache.js";
+import { config_cache } from "@/utils/_cache";
 configDotenv({path : ".env"});
 
 
@@ -9,7 +9,7 @@ export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000 * 30; // 30 days
 export const CLIENT = new URL(process.env.CLIENT_ENDPOINT || "http://localhost:3000")
 
 export const jwtConfig = {
-    secret: process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET || "default_secret_key",
     expire: process.env.JWT_EXPIRE || "1d"
 }
 
@@ -21,12 +21,8 @@ export const google = {
     redirect_urls: ["/auth/google"],
 }
 
-/**
- * 
- * @param {import('express').Request} req 
- * @returns {string} base url
- */
-export function base_url(req){
+
+export function base_url(req : import('express').Request) : string {
     let _base_url = config_cache.get("base_url")
     if(_base_url) return _base_url
 
@@ -36,12 +32,8 @@ export function base_url(req){
     return _base_url
 }
 
-/**
- * 
- * @param {import('express').Request} req 
- * @returns {string} auth url   
- */
-export function google_auth_url(req){
+
+export function google_auth_url(req  :import('express').Request){
     let _auth_url = config_cache.get("google_auth_url")
     if(_auth_url) return _auth_url
 

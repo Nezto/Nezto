@@ -1,16 +1,14 @@
-import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "../config.js";
 import jwt from "jsonwebtoken";
+import { Request, Response } from "express";
+import { JwtUser, GoogleUser } from "./_types";
+import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "@/config";
 
 /**
- * Fetch user profile from Google OAuth API
- * @param {import('express').Request} req - grant callback code
- * @returns {Promise<import('./_types.js').GoogleUser>} User profile from Google OAuth API
- * @description
- * This function fetches user profile from Google OAuth API.
+ * @description Fetch Google user profile using OAuth2
  */
-export async function fetch_google_user(req) {
+export async function fetch_google_user(req : Request) : Promise<GoogleUser | null> {
     try {
-        const _payload = {
+        const _payload : Record<string, any> = {
             code: req.query.code,
             client_id: google.client_id,
             client_secret: google.client_secret,
@@ -35,10 +33,10 @@ export async function fetch_google_user(req) {
         _response = await fetch(`${google.user_profile}?access_token=${_json.access_token}`);
 
         // user profile data
-        const _data = await _response.json();
-        return _data;
+        const _data : GoogleUser = await _response.json();
+        return new GoogleUser(_data);
 
-    } catch (error) {
+    } catch (error : any) {
         console.error('OAuth token error:', error.response?.data || error.message);
         return null;
     }
@@ -47,14 +45,12 @@ export async function fetch_google_user(req) {
 
 /**
  * @description Get user token from request
- * @param {import('express').Request} req 
- * @returns {string | null} User token
  */
-export function get_user_token(req) {
+export function get_user_token(req : Request) : string | null {
     try {
         if (!req.cookies.token && (!req.headers.authorization || !req.headers.authorization?.startsWith('Bearer'))) return null;
-        return req.cookies.token || req.headers.authorization.split(' ')[1];
-    } catch (error) {
+        return req.cookies.token || req.headers?.authorization?.split(' ')[1];
+    } catch (error : any) {
         console.error('Error in get_user_token:', error.message);
         return null;
     }
@@ -63,12 +59,10 @@ export function get_user_token(req) {
 
 /**
  * @description Generate JWT token
- * @param {String} token - User token from request 
- * @returns {import("./_types.js").JwtUser} JWT user
  */
-export function verifyJWT(token) {
+export function verifyJWT(token : string) : JwtUser | null {
     try {
-        return jwt.verify(token, jwtConfig.secret);
+        return new JwtUser(jwt.verify(token, jwtConfig.secret || "default"));
     } catch (error) {
         return null;
     }
@@ -86,16 +80,21 @@ export function verifyJWT(token) {
  * @property {boolean} success - Automatically determined based on status code (true if < 400)
  */
 export class ApiResponse {
+
+    statusCode: number;
+    data: any;
+    message: string;
+    error: any | null = null;
+    success: boolean;
+
     /**
      * @description Class representing an API response.
-     * @param {number} statusCode 
-     * @param {Object} data 
-     * @param {string} message 
      */
-  constructor(statusCode, data, message, error=null) {
+  constructor(statusCode : number, data: any, message: string, error: any = null) {
     this.statusCode = statusCode;
     this.data = data;
     this.message = message;
+
     if (error) {
       this.error = error;
     }
@@ -104,14 +103,16 @@ export class ApiResponse {
 }
 
 
-/**
- * @description Set cookie in response
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @param {string} key - Cookie key
- * @param {string} value - Cookie value
- */
-export function set_cookie(req, res, key, value, domain=CLIENT.hostname, time=DEFAULT_COOKIE_EXPIRATION_MS, secure=true) {
+/**@description Set cookie in response*/
+export function set_cookie(
+    req : Request, 
+    res : Response, 
+    key : string, 
+    value : string, 
+    domain=CLIENT.hostname, 
+    time=DEFAULT_COOKIE_EXPIRATION_MS, 
+    secure=true
+) {
     res.cookie(key, value, { 
         expires: new Date(Date.now() + time), 
         httpOnly: true, 
