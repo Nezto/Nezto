@@ -16,6 +16,6 @@ userRouter.delete('/:id', hasRole('admin'), deleteUserById);
 
 // User level operations
 userRouter.get('/:id', hasRole(), getUserById);
-userRouter.patch('/:id', hasRole(), updateUserById);
+userRouter.put('/:id', hasRole(), updateUserById);
 
 export default userRouter;

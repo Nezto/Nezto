@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authRoute from '@/routes/authRoute';
-import laundryRoute from './laundryRoute';
+import laundryRoute from './vendorRoutes';
 import orderRoute from './orderRoute';
 import userRoute from './userRoute';
 import serviceRoute from './serviceRoute';

@@ -11,21 +11,20 @@ interface UpdateUserRequest {
     role?: string;
 }
 
-
-/**Get all users
- * @route GET /api/user
+ /**Get all users
+ * @route GET /api/users
  * @access Admin only
  */
 export async function getAllUsers(req: Request, res: Response) {
     try {
         const users = await User.find({}).select('-token');
 
-        return res
+        res
             .status(200)
             .json(new ApiResponse(200, { users, count: users.length }, 'Users fetched successfully'));
     } catch (error: any) {
         console.error('Error fetching users:', error);
-        return res.status(500).json(new ApiResponse(500, {}, 'Failed to fetch users', error.message));
+        res.status(500).json(new ApiResponse(500, {}, 'Failed to fetch users', error.message));
     }
 }
 
@@ -33,7 +32,7 @@ export async function getAllUsers(req: Request, res: Response) {
 
 /**
  * @description Get user by ID
- * @route GET /api/user/:id
+ * @route GET /api/users/:id
  * @access User level operation
  * @param {import('express').Request} req
  * @param {import('express').Response} res
@@ -44,17 +43,17 @@ export async function getUserById(req: Request, res: Response) {
         const { id } = req.params;
         const user = await User.findById(id).select('-token');
         if (!user) {
-            return res.status(404).json(new ApiResponse(404, {}, 'User not found'));
+            res.status(404).json(new ApiResponse(404, {}, 'User not found'));
         }
-        return res.status(200).json(new ApiResponse(200, { user }, 'User fetched successfully'));
+        res.status(200).json(new ApiResponse(200, { user }, 'User fetched successfully'));
     } catch (error: any) {
         console.error('Error fetching user:', error);
-        return res.status(500).json(new ApiResponse(500, {}, 'Failed to fetch user', error.message));
+        res.status(500).json(new ApiResponse(500, {}, 'Failed to fetch user', error.message));
     }
 }
 
 /**Update user by ID
- * @route PATCH /api/user/:id
+ * @route PATCH /api/users/:id
  * @access User level operation
  */
 export async function updateUserById(req: Request, res: Response) {
@@ -66,10 +65,8 @@ export async function updateUserById(req: Request, res: Response) {
         const existingUser = await User.findById(id);
 
         if (!existingUser) {
-            return res.status(404).json(new ApiResponse(404, {}, 'User not found'));
+            res.status(404).json(new ApiResponse(404, {}, 'User not found'));
         }
-
-
 
         // Create update object with only provided fields
         const updateData: UpdateUserRequest = {};
@@ -84,7 +81,7 @@ export async function updateUserById(req: Request, res: Response) {
             { new: true, runValidators: true },
         ).select('-token');
 
-        return res
+        res
             .status(200)
             .json(new ApiResponse(200, { user: updatedUser }, 'User updated successfully'));
 
@@ -92,14 +89,14 @@ export async function updateUserById(req: Request, res: Response) {
 
     catch (error: any) {
         console.error('Error updating user:', error);
-        return res.status(500).json(new ApiResponse(500, {}, 'Failed to update user', error.message));
+        res.status(500).json(new ApiResponse(500, {}, 'Failed to update user', error.message));
     }
 }
 
 
 
 /**Delete user by ID
- * @route DELETE /api/user/:id
+ * @route DELETE /api/users/:id
  * @access Admin only
  */
 export async function deleteUserById(req: Request, res: Response) {
@@ -110,14 +107,14 @@ export async function deleteUserById(req: Request, res: Response) {
         const deletedUser = await User.findByIdAndDelete(id);
 
         if (!deletedUser) {
-            return res.status(404).json(new ApiResponse(404, {}, 'User not found'));
+            res.status(404).json(new ApiResponse(404, {}, 'User not found'));
         }
 
-        return res.status(200).json(new ApiResponse(200, {}, 'User deleted successfully'));
+        res.status(200).json(new ApiResponse(200, {}, 'User deleted successfully'));
     }
 
     catch (error: any) {
         console.error('Error deleting user:', error);
-        return res.status(500).json(new ApiResponse(500, {}, 'Failed to delete user', error.message));
+        res.status(500).json(new ApiResponse(500, {}, 'Failed to delete user', error.message));
     }
 }

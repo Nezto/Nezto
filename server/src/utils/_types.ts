@@ -68,3 +68,20 @@ export class LaundryService{
             this.updatedAt = new Date(obj.updatedAt || new Date());
       }
 }
+
+
+export interface OrderFilter {
+    status ?: string;
+    vendor ?: string;
+    user ?: string;
+    price ?: number;
+    type ?: string;
+    pick_time ?: Date;
+    drop_time ?: Date;
+    pickup_location ?: [number, number]; // [longitude, latitude]
+    drop_location ?: [number, number]; // [longitude, latitude]
+    rider ?: string;
+    otp ?: string;
+    completed_at ?: Date;
+    createdAt ?: Date;
+}

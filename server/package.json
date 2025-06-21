@@ -6,9 +6,9 @@
   "license": "ISC",
   "type": "commonjs",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.ts",
+    "start": "node src/index.js",
     "build": "tsc",
     "dev": "nodemon src/index.ts",
     "lint": "eslint --ext .ts,.js src/",

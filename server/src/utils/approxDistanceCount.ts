@@ -3,7 +3,7 @@ import { Double } from "mongoose";
 /** Calculates the approximate distance between two geographical coordinates using the Haversine formula.
  * @throws {Error} If the input format is invalid
  */
-export function calculateDistance(location1 : number[], location2 : number[]) : number {
+export function calculateDistance(location1 : number[] | string, location2 : number[] | string) : number {
     // Parse locations if they're strings
     const [lat1, lon1] = parseLocation(location1);
     const [lat2, lon2] = parseLocation(location2);
