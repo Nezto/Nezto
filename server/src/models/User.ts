@@ -2,16 +2,17 @@ import { model, Schema } from 'mongoose';
 
 export const UserSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true },
-    token: { type: String, required: true }, // JWT token from Google OAuth
+    token: { type: String, required: true }, // JWT token
     name: { type: String, required: true },
-    picture: { type: String }, // Profile image URL
-    role: {
+    avatar: { type: String }, // Profile image URL
+    roles: {
       type: [String],
       enum: ['user', 'rider', 'vendor', 'admin'],
-      default: 'user',
+      default: ['user'],
     },
-    location: { type: String }, // User's location coordinates [lat, lon]
+    location: { type: [Number] }, // [longitude, latitude]
+    address: { type: String },
+    payment: { type: String },
   },
   { timestamps: true },
 );

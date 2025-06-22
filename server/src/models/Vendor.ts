@@ -12,6 +12,12 @@ const VendorSchema = new Schema(
       },
       coordinates: { type: [Number], required: true, index: '2dsphere' }, // [longitude, latitude]
     },
+    services: [
+      {
+        service: { type: Schema.Types.ObjectId, ref: 'Service' },
+        reviews: [{ type: String }],
+      },
+    ],
     owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true },
