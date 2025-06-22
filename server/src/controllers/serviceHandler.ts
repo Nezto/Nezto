@@ -103,7 +103,12 @@ export async function createService(req: Request, res: Response){
         });
     }
     catch (error: any) {
-        new ApiResponse(500, null, "Server Error", error.message);
+        const apiResponse = new ApiResponse(500, null, "Server Error", error.message);
+        res.status(apiResponse.status).json({
+            success: false,
+            message: apiResponse.message,
+            error: apiResponse.error,
+        });
     }
 };
 
