@@ -7,8 +7,8 @@ import {
   deleteService,
   toggleServiceStatus,
   getPopularServices,
-} from '../controllers/serviceHandler.js';
-import { hasRole } from '../middlewares/authentication.js';
+} from '@controllers/serviceHandler';
+import { hasRole } from '@/middlewares/authentication';
 
 // Create router
 const serviceRoute = Router();

@@ -15,7 +15,7 @@ interface ServiceFilter {
  * @route   GET /api/services
  * @access  Public
  */
-export async function getAllServices(req: Request, res: Response): Promise<Response> {
+export async function getAllServices(req: Request, res: Response){
     try {
         const { category, page } = req.query;
 
@@ -24,7 +24,7 @@ export async function getAllServices(req: Request, res: Response): Promise<Respo
             active: true
         }).skip((Number(page) || 0) * 10).limit(10);
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             count: services.length,
             data: services,
@@ -32,7 +32,7 @@ export async function getAllServices(req: Request, res: Response): Promise<Respo
     } 
     
     catch (error: any) {
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Server Error",
             error: error.message,
@@ -44,23 +44,23 @@ export async function getAllServices(req: Request, res: Response): Promise<Respo
  * @route   GET /api/services/:id
  * @access  Public
  */
-export async function getServiceById(req: Request, res: Response): Promise<Response> {
+export async function getServiceById(req: Request, res: Response){
     try {
         const service = await Service.findOne({ serviceId: req.params.id });
 
         if (!service) {
-            return res.status(404).json({
+            res.status(404).json({
                 success: false,
                 message: "Service not found",
             });
         }
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             data: service,
         });
     } catch (error : any) {
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Server Error",
             error: error.message,
@@ -72,14 +72,14 @@ export async function getServiceById(req: Request, res: Response): Promise<Respo
  * @route   POST /api/services
  * @access  Private/Admin
  */
-export async function createService(req: Request, res: Response): Promise<Response | ApiResponse> {
+export async function createService(req: Request, res: Response){
     try {
         const { serviceId, name, description, price, category, popular, turnaround, icon } = req.body;
 
         // Check if service with same ID already exists
         const serviceExists = await Service.findOne({ serviceId });
         if (serviceExists) {
-            return res.status(400).json({
+            res.status(400).json({
                 success: false,
                 message: "Service with this ID already exists",
             });
@@ -96,14 +96,14 @@ export async function createService(req: Request, res: Response): Promise<Respon
             icon: icon || null,
         });
 
-        return res.status(201).json({
+        res.status(201).json({
             success: true,
             message: "Service created successfully",
             data: service,
         });
     }
     catch (error: any) {
-        return new ApiResponse(500, null, "Server Error", error.message);
+        new ApiResponse(500, null, "Server Error", error.message);
     }
 };
 
@@ -117,7 +117,7 @@ export async function updateService(req: Request, res: Response) {
         const service = await Service.findOne({ serviceId: req.params.id });
 
         if (!service) {
-            return res.status(404).json({
+            res.status(404).json({
                 success: false,
                 message: "Service not found",
             });
@@ -129,7 +129,7 @@ export async function updateService(req: Request, res: Response) {
             { new: true, runValidators: true }
         );
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             message: "Service updated successfully",
             data: updatedService,
@@ -137,7 +137,7 @@ export async function updateService(req: Request, res: Response) {
     }
     
     catch (error: any) {
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Server Error",
             error: error.message,
@@ -150,12 +150,12 @@ export async function updateService(req: Request, res: Response) {
  * @route   DELETE /api/services/:id
  * @access  Private/Admin
  */
-export async function deleteService(req: Request, res: Response): Promise<Response> {
+export async function deleteService(req: Request, res: Response){
     try {
         const service = await Service.findOne({ serviceId: req.params.id });
 
         if (!service) {
-            return res.status(404).json({
+            res.status(404).json({
                 success: false,
                 message: "Service not found",
             });
@@ -163,12 +163,12 @@ export async function deleteService(req: Request, res: Response): Promise<Respon
 
         await Service.findOneAndDelete({ serviceId: req.params.id });
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             message: "Service deleted successfully",
         });
     } catch (error: any) {
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Server Error",
             error: error.message,
@@ -181,28 +181,29 @@ export async function deleteService(req: Request, res: Response): Promise<Respon
  * @route   PATCH /api/services/:id/toggle-status
  * @access  Private/Admin
  */
-export async function toggleServiceStatus(req: Request, res: Response): Promise<Response> {
+export async function toggleServiceStatus(req: Request, res: Response){
     try {
         const service = await Service.findOne({ serviceId: req.params.id });
 
         if (!service) {
-            return res.status(404).json({
+            res.status(404).json({
                 success: false,
                 message: "Service not found",
             });
+            return;
         }
 
         service.active = !service.active;
         await service.save();
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             message: `Service ${service.active ? 'activated' : 'deactivated'} successfully`,
             data: service,
         });
     }
     catch (error: any) {
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Server Error",
             error: error.message,
@@ -215,13 +216,13 @@ export async function toggleServiceStatus(req: Request, res: Response): Promise<
  * @route   GET /api/services/popular
  * @access  Public
  */
-export async function getPopularServices(req: Request, res: Response): Promise<Response> {
+export async function getPopularServices(req: Request, res: Response){
     const { page } = req.query;
 
     try {
         const services = await Service.find({ popular: true, active: true }).skip(Number(page || 0) * 10).limit(10);
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             count: services.length,
             data: services,
@@ -229,7 +230,7 @@ export async function getPopularServices(req: Request, res: Response): Promise<R
     }
 
     catch (error: any) {
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Server Error",
             error: error.message,
