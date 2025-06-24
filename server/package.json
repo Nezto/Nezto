@@ -1,46 +1,54 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "description": "",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "build": "tsc",
-    "dev": "nodemon src/index.ts",
-    "lint": "eslint --ext .ts,.js src/",
-    "lint:fix": "eslint --ext .ts,.js src/ --fix"
-  },
-  "_moduleAliases": {
-    "@": "./src"
-  },
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "crypto": "^1.0.1",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.12.1",
-    "multer": "^2.0.1",
-    "socket.io": "^4.8.1"
-  },
-  "devDependencies": {
-    "@types/cookie-parser": "^1.4.9",
-    "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@typescript-eslint/eslint-plugin": "^8.34.1",
-    "@typescript-eslint/parser": "^8.34.1",
-    "eslint": "^9.29.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-prettier": "^5.5.0",
-    "nodemon": "^3.1.9",
-    "prettier": "^3.5.3",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.8.3"
-  }
+    "name": "server",
+    "version": "1.0.0",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "description": "",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "node src/index.js",
+        "build": "tsc",
+        "dev": "nodemon src/index.ts",
+        "lint": "eslint --ext .ts,.js src/",
+        "lint:fix": "eslint --ext .ts,.js src/ --fix",
+        "deploy": "tsc && node dist/index.js"
+    },
+    "_moduleAliases": {
+        "@": "dist",
+        "@routes": "dist/routes",
+        "@controllers": "dist/controllers",
+        "@utils": "dist/utils",
+        "@events": "dist/core/events",
+        "@core": "dist/core",
+        "@models": "dist/models"
+    },
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
+        "crypto": "^1.0.1",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "module-alias": "^2.2.3",
+        "mongoose": "^8.12.1",
+        "multer": "^2.0.1",
+        "socket.io": "^4.8.1"
+    },
+    "devDependencies": {
+        "@types/cookie-parser": "^1.4.9",
+        "@types/express": "^5.0.3",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@typescript-eslint/eslint-plugin": "^8.34.1",
+        "@typescript-eslint/parser": "^8.34.1",
+        "eslint": "^9.29.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-prettier": "^5.5.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.5.3",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.8.3"
+    }
 }

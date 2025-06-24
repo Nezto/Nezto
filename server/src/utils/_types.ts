@@ -22,9 +22,7 @@ export class GoogleUser{
 }
 
 
-/**
- * Class representing a JWT User.
- */
+/**Class representing a JWT User.*/
 export class JwtUser {
 
     _id : string
@@ -44,44 +42,4 @@ export class JwtUser {
         this.createdAt = new Date(obj.createdAt || new Date());
         this.updatedAt = new Date(obj.updatedAt || new Date());
     }
-}
-
-
-export class LaundryService{
-    name: string;
-    description: string;
-    location: string;
-    services: string[];
-    rating: number;
-    status: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-
-      constructor(obj : any){
-            this.name = String(obj.name || "");
-            this.description = String(obj.description || "");
-            this.location = String(obj.location || "");
-            this.services = Array.isArray(obj.services) ? obj.services : [];
-            this.rating = Number(obj.rating || 0);
-            this.status = Boolean(obj.status || false);
-            this.createdAt = new Date(obj.createdAt || new Date());
-            this.updatedAt = new Date(obj.updatedAt || new Date());
-      }
-}
-
-
-export interface OrderFilter {
-    status ?: string;
-    vendor ?: string;
-    user ?: string;
-    price ?: number;
-    type ?: string;
-    pick_time ?: Date;
-    drop_time ?: Date;
-    pickup_location ?: [number, number]; // [longitude, latitude]
-    drop_location ?: [number, number]; // [longitude, latitude]
-    rider ?: string;
-    otp ?: string;
-    completed_at ?: Date;
-    createdAt ?: Date;
 }

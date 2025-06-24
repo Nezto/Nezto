@@ -1,16 +1,15 @@
-import { PORT } from '@/config';
-import connectDB from '@/db/db';
-import { server } from '@/socket/socket';
-
+require('module-alias/register');
+import { Nezto } from "@/core/nezto";
+import { Logger } from "@/utils/logger";
 async function main() {
-  try {
-    await connectDB();
-    server.listen(PORT, () => {
-      console.log(`Server Running On Port : ${PORT}`);
-    });
-  } catch (err) {
-    console.error(err);
-  }
+    try {
+        // Initialize the Nezto application
+        Logger.info("Starting Nezto application...");
+        const nezto = new Nezto();
+        await nezto.run();
+    } catch (err) {
+        Logger.error(err);
+    }
 }
 
 main();
