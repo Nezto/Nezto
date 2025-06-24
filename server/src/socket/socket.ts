@@ -12,7 +12,7 @@ const io = new Server(server, {
 })
 
 io.on("connection", (socket) => {
-    console.log("A user connected:", socket.id, socket.request.headers.authorization);
+    console.log("A user connected:", socket.id, socket.request.headers.authorization ? "[REDACTED]" : "No Authorization Header");
     
     onlineUsers.add(socket.id);
     io.emit("online-users", Array.from(onlineUsers.values()));
