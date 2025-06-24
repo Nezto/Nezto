@@ -33,7 +33,7 @@ export async function googleAuth(req : Request, res : Response) : Promise<void>{
         // if user already exists in database
         const existingUser = await User.findOne({ email: googleUser?.email });
         if (existingUser) {
-            existingUser.picture = googleUser.picture;
+            existingUser.avatar = googleUser.picture;
             existingUser.name = googleUser.name;
             existingUser.token = jwt.sign(jwtUser(existingUser), jwtConfig.secret);
             await existingUser.save();
@@ -43,7 +43,7 @@ export async function googleAuth(req : Request, res : Response) : Promise<void>{
         }
 
         // if user does not exist in database
-        const newUser = new User({ email: googleUser.email, picture: googleUser.picture, name: googleUser.name, role: UserRoles.user })
+        const newUser = new User({ email: googleUser.email, avatar: googleUser.picture, name: googleUser.name, role: UserRoles.user })
         const token = jwt.sign(jwtUser({ ...newUser.toObject() }), jwtConfig.secret);
 
         newUser.token = token;

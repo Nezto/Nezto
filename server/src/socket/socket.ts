@@ -7,12 +7,12 @@ const server = http.createServer(app);
 const onlineUsers = new Set<string>();
 const io = new Server(server, {
     cors: {
-        origin: CLIENT.origin
+        origin: ["*", CLIENT.origin],
     }
 })
 
 io.on("connection", (socket) => {
-    console.log("A user connected:", socket.id);
+    console.log("A user connected:", socket.id, socket.request.headers.authorization ? "[REDACTED]" : "No Authorization Header");
     
     onlineUsers.add(socket.id);
     io.emit("online-users", Array.from(onlineUsers.values()));

@@ -1,8 +1,6 @@
-import { Double } from "mongoose";
 
-/** Calculates the approximate distance between two geographical coordinates using the Haversine formula.
- * @throws {Error} If the input format is invalid
- */
+
+/** Calculates the approximate distance between two geographical coordinates using the Haversine formula.*/
 export function calculateDistance(location1 : number[] | string, location2 : number[] | string) : number {
     // Parse locations if they're strings
     const [lat1, lon1] = parseLocation(location1);
@@ -34,13 +32,8 @@ function toRadians(degrees : number) : number {
     return degrees * (Math.PI / 180);
 }
 
-/**
- * Parses location input into [latitude, longitude] array
- * @param {string|number[]} location 
- * @returns {number[]}
- * @throws {Error} If the input format is invalid
- */
-function parseLocation(location : string | number[]) : number[] {
+/**Parses location input into [latitude, longitude] array*/
+function parseLocation(location: string | number[]): number[] {
     // Handle array input
     if (Array.isArray(location) && location.length === 2 &&
         typeof location[0] === 'number' && typeof location[1] === 'number') {

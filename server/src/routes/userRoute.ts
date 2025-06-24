@@ -4,8 +4,8 @@ import {
   getUserById,
   updateUserById,
   deleteUserById,
-} from '../controllers/userHandler.js';
-import { hasRole } from '../middlewares/authentication.js';
+} from '@controllers/userHandler';
+import { hasRole } from '@/middlewares/authentication';
 
 const userRouter = Router();
 
