@@ -5,7 +5,7 @@ const serviceSchema = new Schema(
     name: { type: String, required: true, trim: true },
     price: { type: Number, required: true },
     description: { type: String, required: true },
-    category: { type: String, required: true },
+    category: { type: [String], required: true, default: ['daily'] },
     turnaround: { type: String },
     icon: { type: String },
     banner: { type: String },

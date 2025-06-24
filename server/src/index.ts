@@ -1,16 +1,12 @@
-import { PORT } from '@/config';
-import connectDB from '@/db/db';
-import { server } from '@/socket/socket';
+import { Nezto } from "./core/nezto";
 
 async function main() {
-  try {
-    await connectDB();
-    server.listen(PORT, () => {
-      console.log(`Server Running On Port : ${PORT}`);
-    });
-  } catch (err) {
-    console.error(err);
-  }
+    try {
+        const nezto = new Nezto();
+        await nezto.run();
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 main();

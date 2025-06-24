@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import { CLIENT } from '@/config';
 import http from 'http';
-import { app } from '@/app';
+import { app } from '@/core/app';
 
 const server = http.createServer(app);
 const onlineUsers = new Set<string>();
