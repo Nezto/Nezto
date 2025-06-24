@@ -4,7 +4,7 @@ configDotenv({path : ".env"});
 
 
 export const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017"
-export const PORT = process.env.PORT || 8000; 
+export const PORT = Number(process.env.PORT || 8000);
 export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000 * 30; // 30 days in milliseconds
 export const CLIENT = new URL(process.env.CLIENT_ENDPOINT || "http://localhost:3000")
 

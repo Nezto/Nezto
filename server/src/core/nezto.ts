@@ -1,28 +1,32 @@
-import connectDB from '@/utils/db';
-import * as config from "@/config";
-import { User } from "@/models/User";
-import { Service } from "@/models/Service";
-import { Vendor } from "@/models/Vendor";
-import { Rider } from "@/models/Rider";
-import { Order } from "@/models/Order";
-import { BaseUser } from "./user";
-import { BaseService } from "./service";
-import { BaseVendor } from "./vendor";
-import { BaseRider } from "./rider";
-import { BaseOrder } from "./order";
-import { server, io } from "@/core/events/socket";
+import connectDB from '@/core/db';
+import * as config from '@/config';
+import { Logger } from '@/utils/logger';
+import { User } from '@/models/User';
+import { Service } from '@/models/Service';
+import { Vendor } from '@/models/Vendor';
+import { Rider } from '@/models/Rider';
+import { Order } from '@/models/Order';
+import { BaseUser } from '@/core/user';
+import { BaseService } from '@/core/service';
+import { BaseVendor } from '@/core/vendor';
+import { BaseRider } from '@/core/rider';
+import { BaseOrder } from '@/core/order';
+import { server, io } from '@events/socket';
+
 
 
 
 export class Nezto {
-    io: typeof io;
-    config = config;
-    vendors: BaseVendor[] = [];
-    riders: BaseRider[] = [];
-    users: BaseUser[] = [];
-    services: BaseService[] = [];
-    orders: BaseOrder[] = [];
-    models = {
+    protected io = io;
+    public port : number;
+    protected config = config;
+    public logger = Logger;
+    public vendors: BaseVendor[] = [];
+    public riders: BaseRider[] = [];
+    public users: BaseUser[] = [];
+    public services: BaseService[] = [];
+    public orders: BaseOrder[] = [];
+    public models = {
         Vendor: Vendor,
         Rider: Rider,
         User: User,
@@ -30,8 +34,8 @@ export class Nezto {
         Order: Order
     }
 
-    constructor() {
-        this.io = io;
+    constructor(port : number = config.PORT) {
+        this.port = port;
     }
 
 
@@ -60,7 +64,7 @@ export class Nezto {
     async loadUsers() {
         const users = await this.models.User.find();
         if (users.length === 0) {
-            console.warn("No users found in the database.");
+            this.logger.warn('No users found in the database.');
         }
         this.users = users.map(user => new BaseUser(user));
     }
@@ -68,7 +72,7 @@ export class Nezto {
     async loadServices() {
         const services = await this.models.Service.find();
         if (services.length === 0) {
-            console.warn("No services found in the database.");
+            this.logger.warn('No services found in the database.');
         }
         this.services = services.map(service => new BaseService(service));
     }
@@ -112,23 +116,24 @@ export class Nezto {
 
     async onReady(){
         await this.init();
-        console.log("Nezto is ready with the following data:");
-        console.log(`Users: ${this.users.length}`);
-        console.log(`Vendors: ${this.vendors.length}`);
-        console.log(`Riders: ${this.riders.length}`);
-        console.log(`Services: ${this.services.length}`);
-        console.log(`Orders: ${this.orders.length}`);
+        this.logger.info("Nezto is ready with the following data:");
+        this.logger.info(`Users: ${this.users.length}`);
+        this.logger.info(`Vendors: ${this.vendors.length}`);
+        this.logger.info(`Riders: ${this.riders.length}`);
+        this.logger.info(`Services: ${this.services.length}`);
+        this.logger.info(`Orders: ${this.orders.length}`);
     }
 
     async run() {
         try {
             await connectDB();
-            await this.onReady();
-            server.listen(this.config.PORT, () => {
-                console.log(`Server Running On : http://localhost:${this.config.PORT}`);
+            
+            server.listen(this.port, () => {
+                this.logger.log(`Server Running On : http://localhost:${this.port}`);
             });
+            await this.onReady();
         } catch (err) {
-            console.error(err);
+            this.logger.error(err);
         }
     }
 }
