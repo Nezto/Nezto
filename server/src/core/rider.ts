@@ -2,6 +2,7 @@ import { BaseUser } from "./user";
 import { Payout } from "./types";
 
 
+
 export class BaseRider extends BaseUser {
     _id: string;
     name: string;

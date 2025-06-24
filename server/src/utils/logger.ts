@@ -11,20 +11,20 @@ const colors = {
 } 
 
 export class Logger{
-    static log(message: any) {
-        console.log(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.LOG} [LOG] ${colors.LOG}${message}${colors.RESET}`);
+    static log(message: any='', ...optionalParams: any[]) {
+        console.log(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.LOG} [LOG] ${colors.LOG}${message}${colors.RESET}`, ...optionalParams);
     }
 
-    static info(message: any) {
-        console.info(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.INFO} [INFO] ${colors.INFO}${message}${colors.RESET}`);
+    static info(message: any='', ...optionalParams: any[]) {
+        console.info(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.INFO} [INFO] ${colors.INFO}${message}${colors.RESET}`, ...optionalParams);
     }
 
-    static warn(message: any) {
-        console.warn(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.WARN} [WARN] ${colors.WARN}${message}${colors.RESET}`);
+    static warn(message: any='', ...optionalParams: any[]) {
+        console.warn(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.WARN} [WARN] ${colors.WARN}${message}${colors.RESET}`, ...optionalParams);
     }
 
-    static error(message: any) {
-        console.error(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.ERROR} [ERROR] ${colors.ERROR}${message}${colors.RESET}`);
+    static error(message: any='', ...optionalParams: any[]) {
+        console.error(`${colors.MAGENTA}[${new Date().toLocaleString()}]${colors.ERROR} [ERROR] ${colors.ERROR}${message}${colors.RESET}`, ...optionalParams);
     }
 }
 

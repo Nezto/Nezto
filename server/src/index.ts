@@ -1,4 +1,5 @@
 require('module-alias/register');
+import 'tsconfig-paths/register'
 import { Nezto } from "@/core/nezto";
 import { Logger } from "@/utils/logger";
 async function main() {
