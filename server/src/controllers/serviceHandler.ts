@@ -60,7 +60,7 @@ export async function getServiceById(req: Request, res: Response){
             success: true,
             data: service,
         });
-        
+
     } catch (error : any) {
         res.status(500).json({
             success: false,
@@ -106,7 +106,7 @@ export async function createService(req: Request, res: Response){
     }
     catch (error: any) {
         const apiResponse = new ApiResponse(500, null, "Server Error", error.message);
-        res.status(apiResponse.status).json({
+        res.status(apiResponse.statusCode).json({
             success: false,
             message: apiResponse.message,
             error: apiResponse.error,
