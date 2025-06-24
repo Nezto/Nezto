@@ -53,12 +53,14 @@ export async function getServiceById(req: Request, res: Response){
                 success: false,
                 message: "Service not found",
             });
+            return;
         }
 
         res.status(200).json({
             success: true,
             data: service,
         });
+        
     } catch (error : any) {
         res.status(500).json({
             success: false,
