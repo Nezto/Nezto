@@ -22,7 +22,7 @@
         "@models": "./build/models",
         "@routes": "./build/routes",
         "@controllers": "./build/controllers",
-        "@events": "./build/events"
+        "@events": "./build/core/events"
     },
     "dependencies": {
         "bcrypt": "^5.1.1",
