@@ -4,7 +4,6 @@ import { BaseUser } from "@/core/user";
 import { BaseService } from "@/core/service";
 import { BaseOrder } from "@/core/order";
 import { Nezto } from "../nezto";
-import { Events } from "./event_names";
 
 
 export class Loader {
@@ -35,14 +34,16 @@ export class Loader {
     async loadVendors() {
         const vendors = await this.app.models.Vendor.find().populate('services', '_id name description price').populate('owners', '_id name email phone');
         vendors.forEach(vendor => {
-            this.app.vendors.push(new BaseVendor(vendor));
+            const _vendorObj = new BaseVendor(vendor);
+            this.app.vendors.set(String(vendor._id), _vendorObj);
         });
     }
 
     async loadRiders() {
         const riders = await this.app.models.Rider.find();
         riders.forEach(rider => {
-            this.app.riders.push(new BaseRider(rider));
+            const _riderObj = new BaseRider(rider);
+            this.app.riders.set(String(rider._id), _riderObj);
         });
     }
 
@@ -52,7 +53,8 @@ export class Loader {
             this.app.logger.warn('No users found in the database.');
         }
         users.forEach(user => {
-            this.app.users.push(new BaseUser(user));
+            const _userObj = new BaseUser(user);
+            this.app.users.set(String(user._id), _userObj);
         });
     }
 
@@ -62,13 +64,17 @@ export class Loader {
             this.app.logger.warn('No services found in the database.');
         }
         services.forEach(service => {
-            this.app.services.push(new BaseService(service));
+            const _serviceObj = new BaseService(service);
+            this.app.services.set(String(service._id), _serviceObj);
         });
     }
 
     async loadOrders() {
         const orders = await this.app.models.Order.find();
-        this.app.orders = orders.map(order => new BaseOrder(order));
+        orders.forEach(order => {
+            const _orderObj = new BaseOrder(order);
+            this.app.orders.set(String(order._id), _orderObj);
+        });
     }
 
 }
