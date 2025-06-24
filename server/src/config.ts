@@ -2,7 +2,7 @@ import { configDotenv } from "dotenv";
 import { config_cache } from "@/utils/_cache";
 configDotenv({path : ".env"});
 
-
+export const NODE_ENV = process.env.NODE_ENV || "development";
 export const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017"
 export const PORT = Number(process.env.PORT || 8000);
 export const DEFAULT_COOKIE_EXPIRATION_MS = 24 * 60 * 60 * 1000 * 30; // 30 days in milliseconds
@@ -14,8 +14,8 @@ export const jwtConfig = {
 }
 
 export const google = {
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    client_id: process.env.GOOGLE_CLIENT_ID || "your-google-client-id",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET || "your-google-client-secret",
     token_url: `https://oauth2.googleapis.com/token`,
     user_profile : "https://www.googleapis.com/oauth2/v3/userinfo",
     redirect_urls: ["/auth/google"],

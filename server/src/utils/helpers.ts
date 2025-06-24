@@ -3,6 +3,17 @@ import { Request, Response } from "express";
 import { JwtUser, GoogleUser } from "./_types";
 import { google, jwtConfig, base_url, CLIENT, DEFAULT_COOKIE_EXPIRATION_MS } from "@/config";
 
+
+interface JsonResponse {
+    access_token?: string;
+    statusCode: number;
+    data: any;
+    message: string;
+    error?: any;
+    error_description?: string;
+}
+
+
 /**
  * @description Fetch Google user profile using OAuth2
  */
@@ -22,7 +33,7 @@ export async function fetch_google_user(req : Request) : Promise<GoogleUser | nu
         })
 
         // contains access token
-        const _json = await _response.json()
+        const _json: any = await _response.json()
 
         // if unable to find access
         if (!_json.access_token) {
@@ -33,8 +44,8 @@ export async function fetch_google_user(req : Request) : Promise<GoogleUser | nu
         _response = await fetch(`${google.user_profile}?access_token=${_json.access_token}`);
 
         // user profile data
-        const _data : GoogleUser = await _response.json();
-        return new GoogleUser(_data);
+        const _data = await _response.json();
+        return new GoogleUser(_data || {});
 
     } catch (error : any) {
         console.error('OAuth token error:', error.response?.data || error.message);

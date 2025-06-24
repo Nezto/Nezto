@@ -1,6 +1,12 @@
-require('module-alias/register');
+require('module-alias/register'); // Ensure module aliases are registered for Node.js
+import 'tsconfig-paths/register' // Ensure module aliases and paths are registered for TypeScript
+
+
 import { Nezto } from "@/core/nezto";
 import { Logger } from "@/utils/logger";
+
+
+
 async function main() {
     try {
         // Initialize the Nezto application

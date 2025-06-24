@@ -1,26 +1,35 @@
-import events from "node:events";
-import { Nezto } from "../nezto";
-
+import events from "events";
+import { Loader } from "../ext/loader";
+import { Events } from "../ext/event_names";
 
 export class AppEvents {
-    events: events;
-    static readonly APP_READY = 'app-ready';
-    static readonly APP_EXIT = 'app-exit';
-    static readonly APP_ERROR = 'app-error';
+    private app;
+    public static events = new events.EventEmitter();
+    constructor(app : any) {
 
-    constructor(app: Nezto) {
-        this.events = new events();
+        this.app = app;
+        AppEvents.events.on(Events.ON_START, async () => {
+            // Initialize the Nezto application
+            const loader = new Loader(app);
+            await loader.loadAll();
+            // Log the application readiness
+            app.logger.info("Nezto is ready with the following data:");
+            app.logger.info(`Users: ${app.users.length}`);
+            app.logger.info(`Vendors: ${app.vendors.length}`);
+            app.logger.info(`Riders: ${app.riders.length}`);
+            app.logger.info(`Services: ${app.services.length}`);
+            app.logger.info(`Orders: ${app.orders.length}`);
 
-        this.events.on(AppEvents.APP_READY, async () => {
-            await app.onReady();
+            // Set the singleton instance
+            AppEvents.events.emit(Events.ON_READY);
         });
 
-        this.events.on(AppEvents.APP_EXIT, () => {
-            console.log('App is exiting');
+        this.app.events.on(Events.ON_READY, () => {
+            app.logger.info("Nezto application is fully initialized and ready to use.");
         });
 
-        this.events.on(AppEvents.APP_ERROR, (error) => {
-            console.error('App error:', error);
+        this.app.events.on(Events.ON_ERROR, (error : any) => {
+            app.logger.error('App error:', error);
         });
     }
 }
