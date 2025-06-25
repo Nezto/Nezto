@@ -1,6 +1,6 @@
 import { configDotenv } from "dotenv";
 import { config_cache } from "@/utils/_cache";
-configDotenv({path : ".env"});
+configDotenv();
 
 export const NODE_ENV = process.env.NODE_ENV || "development";
 export const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017"

@@ -10,7 +10,7 @@
     "scripts": {
         "start": "node index.js",
         "build": "npx tsc --skipLibCheck",
-        "dev": "ts-node --swc src/index.ts",
+        "dev": "cd src && ts-node --swc index.ts",
         "lint": "eslint --ext .ts,.js src/",
         "lint:fix": "eslint --ext .ts,.js src/ --fix",
         "deploy": "npx tsc --skipLibCheck && node build/index.js"

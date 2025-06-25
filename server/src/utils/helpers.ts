@@ -20,7 +20,7 @@ interface JsonResponse {
 export async function fetch_google_user(req : Request) : Promise<GoogleUser | null> {
     try {
         const _payload : Record<string, any> = {
-            code: req.query.code,
+            code: String(req.query.code || req.body.code || ""),
             client_id: google.client_id,
             client_secret: google.client_secret,
             redirect_uri: `${base_url(req)}/auth/google`,
