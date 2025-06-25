@@ -1,4 +1,4 @@
-import { verifyJWT } from "@/utils/helpers";
+import { verifyJWT, set_cookie } from "@/utils/helpers";
 import { Request, Response } from "express";
 
 
@@ -28,6 +28,7 @@ export function isAuthenticated(req: Request, res: Response, next: Function): vo
         res.handler.unAuthorised(res);
         return;
     }
+    res.setHeader('X-User-Id', String(user._id));
     next();
 }
 
@@ -93,6 +94,9 @@ export  function hasRole(role = "user"): (req: Request, res: Response, next: Fun
         if (!userCache?.roles.includes(role)) {
             return res.status(403).json({ error: "Unauthorised", message: `User doesn't have ${role} perm to access this resource!!` });
         }
+        set_cookie(req, res, 'token', userCache.token || "invalid token");
+        set_cookie(req, res, '_id', String(userCache._id || "invalid id"));
+        res.setHeader('X-User-Id', String(userCache._id));
         next();
     }
 }
