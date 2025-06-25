@@ -3,6 +3,7 @@ import { CLIENT } from '@/config';
 import http from 'http';
 import { app } from '@/core/app';
 
+
 const server = http.createServer(app);
 const onlineUsers = new Set<string>();
 const io = new Server(server, {
@@ -28,4 +29,4 @@ io.on("connection", (socket) => {
     });
 })
 
-export { io, server }
+export { io, server, app }

@@ -6,16 +6,20 @@ import { LaundryOwnerCache } from "@/utils/_cache";
 
 export function isAuthenticated(req: Request, res: Response, next: Function): void {
     const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+
     if (!token) {
-        res.status(401).json({ message: "Unauthorized" });
+        res.handler.unAuthorised(res, { message: "You are not authenticated" });
         return;
     }
-    // verify JWT token
-    // if token is invalid or expired, it will return null
-    // if token is valid, it will return user object
+
+    if (!req.app.nezto.jwts.has(token)){
+        res.handler.unAuthorised(res);
+        return;
+    }
+
     const user = verifyJWT(token);
     if (!user) {
-        res.status(401).json({ message: "Forbidden" });
+        res.handler.unAuthorised(res);
         return;
     }
     next();
@@ -26,11 +30,12 @@ export function isAuthenticated(req: Request, res: Response, next: Function): vo
 export function isOwner(req: Request, res: Response, next: Function): void {
     const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
     const vendorID = req.params.id;
+    const response = req.app.nezto.response;
     if (!token) {
-        res.status(401).json({ error: "Unauthorized", message: "No token provided" });
+        response.unAuthorised(res);
     }
     else if (!vendorID) {
-        res.status(400).json({ error: "Bad Request", message: "Vendor ID is required" });
+        response.badRequest(res);
     }
 
     // verify JWT token
@@ -38,10 +43,10 @@ export function isOwner(req: Request, res: Response, next: Function): void {
     // if token is valid, it will return user object
     const user = verifyJWT(token);
     if (!user) {
-        res.status(401).json({ message: "Forbidden" });
+        response.forbidden(res);
     }
     if (!LaundryOwnerCache.get(user?._id || "")) {
-        res.status(403).json({ error: "Unauthorised", message: `You are not authorized to update this vendor` });
+        response.forbidden(res, { message: `You are not authorized to update this vendor` });
     }
     next();
 }

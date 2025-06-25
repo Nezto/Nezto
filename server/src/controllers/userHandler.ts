@@ -19,12 +19,13 @@ export async function getAllUsers(req: Request, res: Response) {
     try {
         const users = await User.find({}).select('-token');
 
-        res
-            .status(200)
-            .json(new ApiResponse(200, { users, count: users.length }, 'Users fetched successfully'));
+        res.handler.success(res, {
+            users, count: users.length, message: 'Users fetched successfully'
+        });
+
     } catch (error: any) {
-        console.error('Error fetching users:', error);
-        res.status(500).json(new ApiResponse(500, {}, 'Failed to fetch users', error.message));
+        res.app.nezto.logger.error('Error fetching users:', error);
+        res.handler.internalServerError(res, { message: 'Failed to fetch user', error: error.message });
     }
 }
 
@@ -34,9 +35,6 @@ export async function getAllUsers(req: Request, res: Response) {
  * @description Get user by ID
  * @route GET /api/users/:id
  * @access User level operation
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
  */
 export async function getUserById(req: Request, res: Response) {
     try {
@@ -48,7 +46,7 @@ export async function getUserById(req: Request, res: Response) {
         res.status(200).json(new ApiResponse(200, { user }, 'User fetched successfully'));
     } catch (error: any) {
         console.error('Error fetching user:', error);
-        res.status(500).json(new ApiResponse(500, {}, 'Failed to fetch user', error.message));
+        res.handler.internalServerError(res, {message : 'Failed to fetch user', error : error.message});
     }
 }
 

@@ -12,6 +12,7 @@ import { fetch_google_user, set_cookie } from "@utils/helpers";
 /**Handles Google OAuth authentication*/
 export async function googleAuth(req : Request, res : Response) : Promise<void>{
     try {
+        
         const { code } = req.query;
         
         // if unable to find code in query
