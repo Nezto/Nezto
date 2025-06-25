@@ -94,10 +94,10 @@ export async function createVendor(req: Request, res: Response) {
         const user = verifyJWT(req.cookies.token || req.headers.authorization?.split(' ')[1]);
 
         // Validate location data
-        if (!location || !location.coordinates || !location.type) {
+        if (!location || !location.coordinates) {
             res.status(400).json({
                 success: false,
-                message: "Please provide valid location data with type and coordinates"
+                message: "Please provide valid location data with coordinates"
             });
         }
 

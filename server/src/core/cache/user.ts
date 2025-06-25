@@ -1,5 +1,7 @@
+import jwt from 'jsonwebtoken';
 import { Nezto } from "../nezto";
 import { BaseUser } from '@/core/user';
+
 
 export class UserCache {
     private cache: Map<string, BaseUser> = new Map();
@@ -11,7 +13,30 @@ export class UserCache {
 
     public set(key: string, user: BaseUser): void {
         this.cache.set(key, user);
+        this.nezto.jwts.set(user.token, String(user._id));
         this.size++;
+    }
+
+
+    public async create(data: Partial<BaseUser>): Promise<BaseUser | null> {
+        const existingUser = await this.findOne({ email: data.email });
+
+        const user = existingUser || new this.nezto.models.User(data);
+
+        const token = jwt.sign({ 
+            _id: user._id, 
+            name: user.name,
+            email: user.email, 
+            avatar: user.avatar, 
+            roles: user.roles || ["user"],
+            updatedAt: user.updatedAt,
+        }, this.nezto.config.jwtConfig.secret);
+
+        user.token = token; // Add token to user object
+        const baseUser = new BaseUser(user);
+        await user.save(); // Save the user with the token
+        this.set(String(user._id), baseUser);
+        return baseUser;
     }
 
     public async loadAll() {
@@ -33,6 +58,17 @@ export class UserCache {
         }
         return null;
     }
+
+    public async findOne(query: Record<string, any>): Promise<BaseUser | null> {
+        const user = await this.nezto.models.User.findOne(query).exec();
+        if (user) {
+            const baseUser = new BaseUser(user);
+            this.set(String(user._id), baseUser);
+            return baseUser;
+        }
+        return null;
+    }
+
 
     public has(id: string): boolean {
         return this.cache.has(String(id));

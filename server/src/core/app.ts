@@ -18,6 +18,7 @@ declare module 'express-serve-static-core' {
   }
 
    interface Response {
+    ctx: Nezto;
     handler: ResponseHandler;
   }
 }

@@ -9,6 +9,16 @@ export class VendorCache {
         this.nezto = nezto;
     }
 
+    public async create(user_id: string): Promise<BaseVendor> {
+        const user = await this.nezto.users.get(user_id);
+        if (!user) throw new Error("User not found");
+
+        const vendor = (await this.nezto.models.Vendor.create({ owner: user?._id })).populate('owner', 'name email phone');
+        const baseVendor = new BaseVendor(vendor);
+        this.set(String(baseVendor._id), baseVendor);
+        return baseVendor;
+    }
+
     public set(key: string, vendor: BaseVendor): void {
         this.cache.set(key, vendor);
         this.size++;

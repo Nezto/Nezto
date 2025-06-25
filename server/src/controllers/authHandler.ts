@@ -12,12 +12,15 @@ import { fetch_google_user, set_cookie } from "@utils/helpers";
 /**Handles Google OAuth authentication*/
 export async function googleAuth(req : Request, res : Response) : Promise<void>{
     try {
-        
+
         const { code } = req.query;
-        
+
         // if unable to find code in query
         if (!code) {
-            res.status(401).json({ message: 'Invalid authentication', error: "code not found in query" });
+            res.handler.badRequest(res, {
+                message: 'Invalid authentication',
+                error: "code not found in query"
+            });
             return;
         }
 
@@ -27,37 +30,35 @@ export async function googleAuth(req : Request, res : Response) : Promise<void>{
 
         // if unable to find user from google Oauth api
         if (!googleUser) {
-            res.status(401).json({ message: 'Invalid authentication' });
+            res.handler.unAuthorized(res, {
+                message: 'Invalid authentication',
+                error: "Unable to fetch user from Google OAuth API"
+            });
             return;
         }
 
-        // if user already exists in database
-        const existingUser = await User.findOne({ email: googleUser?.email });
-        if (existingUser) {
-            existingUser.avatar = googleUser.picture;
-            existingUser.name = googleUser.name;
-            existingUser.token = jwt.sign(jwtUser(existingUser), jwtConfig.secret);
-            await existingUser.save();
-            set_cookie(req, res, 'token', existingUser.token);
-            res.redirect(CLIENT.origin);
-            return;
-        }
+        const newUser = await res.app.nezto.users.create(
+            {
+                email: googleUser.email,
+                avatar: googleUser.picture,
+                name: googleUser.name,
+                roles: [UserRoles.user]
+            }
+        )
 
-        // if user does not exist in database
-        const newUser = new User({ email: googleUser.email, avatar: googleUser.picture, name: googleUser.name, role: UserRoles.user })
-        const token = jwt.sign(jwtUser({ ...newUser.toObject() }), jwtConfig.secret);
+        set_cookie(req, res, 'token', newUser?.token || "invalid token");
+        set_cookie(req,res, '_id', String(newUser?._id || "invalid id"));
 
-        newUser.token = token;
-        await newUser.save();
-        set_cookie(req, res, 'token', newUser.token);
+        
         res.redirect(CLIENT.origin);
         return;
     } 
     
     catch (error : any) {
-        res.status(500).json(
-            { code: 500, message: "server error", error: error.message || "" }
-        );
+        res.handler.internalServerError(res, {
+            message: 'Internal server error',
+            error: error.message || "An error occurred during Google authentication"
+        });
     }
 }
 
